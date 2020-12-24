@@ -1,0 +1,25 @@
+[package]
+authors = ["Sebastian Messmer"]
+edition = "2018"
+name = "crypto-keyderive"
+version = "0.1.0"
+
+[lib]
+name = "crypto_keyderive"
+path = "src/lib.rs"
+
+[[bin]]
+name = "crypto-keyderive"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "^1.0.36"
+clap = "^2.33.3"
+hex = "^0.4.2"
+libsecp256k1 = "^0.2.2"
+rand = {version = "^0.8.0", features = ["getrandom"]}
+thiserror = "^1.0.22"
+tiny-bip39 = "^0.8.0"
+tiny-hderive = "^0.2.1"
+trompt = "^0.0.4"
+wallet-gen = "^0.4.1"
