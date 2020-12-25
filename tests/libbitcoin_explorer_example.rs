@@ -1,10 +1,10 @@
 use crypto_keyderive::{
-    derive_hd_wallet, mnemonic_to_seed, seed_to_wallet, Bip44DerivationPath, CoinType,
-    MoneroWallet, Seed,
+    derive_hd_wallet, mnemonic_to_seed, seed_to_bitcoin_wallet, seed_to_monero_wallet,
+    Bip44DerivationPath, BitcoinWallet, CoinType, MoneroWallet, Seed,
 };
 
 #[test]
-fn libbitcoin_explorer_example_without_password() {
+fn xmr_example_without_password() {
     // Example taken from https://github.com/libbitcoin/libbitcoin-system/wiki/Altcoin-Version-Mappings#10-monero-xmr-bip-3944-technology-examples
     let seed = mnemonic_to_seed(
         "radar blur cabbage chef fix engine embark joy scheme fiction master release",
@@ -25,7 +25,7 @@ fn libbitcoin_explorer_example_without_password() {
         "e62551cad9fe0f05d7c84cf6a0ef7e8fc0534c2694279fc6e46d38f21a3f6ed3",
         hex::encode(derived.as_bytes())
     );
-    let wallet = seed_to_wallet(derived).unwrap();
+    let wallet = seed_to_monero_wallet(derived).unwrap();
     assert_eq!(
         "dd62d51183f6208cf4d1b9af523f2c80bf534c2694279fc6e46d38f21a3f6e03",
         wallet.private_spend_key()
@@ -35,4 +35,67 @@ fn libbitcoin_explorer_example_without_password() {
         wallet.public_spend_key()
     );
     assert_eq!("4A4cAKxSbirZTFbkK5LwoYL3hLkVxkT8yLxAz8KCxAT66naEG4pYY9B6Q43zdao1oE3D3mzodbggzNz9t9tGvE8N3jVnu3A", wallet.address());
+}
+
+#[test]
+fn btc_example_without_password() {
+    // Generated at https://iancoleman.io/bip39/
+    let seed = mnemonic_to_seed("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice", "").unwrap();
+    let derived = derive_hd_wallet(
+        seed,
+        Bip44DerivationPath {
+            coin_type: CoinType::BTC,
+            account: 0,
+            change: Some(0),
+            address_index: Some(0),
+        },
+    )
+    .unwrap();
+    let wallet = seed_to_bitcoin_wallet(derived).unwrap();
+    assert_eq!(
+        "KxpYae1CiPGjy1UUQueMVaDAs1eDpUUzf9QYteGYBJH98hU9Ka1k",
+        wallet.wif(),
+    );
+}
+
+#[test]
+fn btc_example_subaddress_without_password() {
+    // Generated at https://iancoleman.io/bip39/
+    let seed = mnemonic_to_seed("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice", "").unwrap();
+    let derived = derive_hd_wallet(
+        seed,
+        Bip44DerivationPath {
+            coin_type: CoinType::BTC,
+            account: 3,
+            change: Some(1),
+            address_index: Some(15),
+        },
+    )
+    .unwrap();
+    let wallet = seed_to_bitcoin_wallet(derived).unwrap();
+    assert_eq!(
+        "L461b4XaN6TzUvS8EceZKFKSBmZwSABxJa1M3FVhW2fngeu5z9mb",
+        wallet.wif(),
+    );
+}
+
+#[test]
+fn btc_example_subaddress_with_password() {
+    // Generated at https://iancoleman.io/bip39/
+    let seed = mnemonic_to_seed("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice", "My Password").unwrap();
+    let derived = derive_hd_wallet(
+        seed,
+        Bip44DerivationPath {
+            coin_type: CoinType::BTC,
+            account: 3,
+            change: Some(1),
+            address_index: Some(15),
+        },
+    )
+    .unwrap();
+    let wallet = seed_to_bitcoin_wallet(derived).unwrap();
+    assert_eq!(
+        "KwUhiQrUdSbJPxf1hhdSwHauHdTXNkzT4gZvZyhvjRX9psoiNswG",
+        wallet.wif(),
+    );
 }
