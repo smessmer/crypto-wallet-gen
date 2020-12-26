@@ -1,29 +1,55 @@
 version: 2.1
 
 jobs:
-  build:
+  codeformat:
     docker:
       - image: rust:1
-
     steps:
       - checkout
       - restore_cache:
-          key: project-cache
+          key: rustfmt-cache-v0
       - run:
           name: Check formatting
           command: |
             rustup component add rustfmt
             rustfmt --version
             cargo fmt -- --check
+      - save_cache:
+          key: rustfmt-cache-v0
+          paths:
+            - "~/.cargo"
+            - "./target"
+  nightly:
+    docker:
+      - image: rust:1
+    steps:
+      - checkout
+      - restore_cache:
+          key: nightly-cache-v0
       - run:
-          name: Nightly Build
+          name: Build
           command: |
             rustup install nightly
             rustup run nightly rustc --version --verbose
             rustup run nightly cargo --version --verbose
             rustup run nightly cargo build
       - run:
-          name: Stable Build
+          name: Test
+          command: rustup run nightly cargo test
+      - save_cache:
+          key: nightly-cache-v0
+          paths:
+            - "~/.cargo"
+            - "./target"
+  stable:
+    docker:
+      - image: rust:1
+    steps:
+      - checkout
+      - restore_cache:
+          key: stable-cache-v0
+      - run:
+          name: Build
           command: |
             rustup install stable
             rustup run stable rustc --version --verbose
@@ -33,7 +59,19 @@ jobs:
           name: Test
           command: rustup run stable cargo test
       - save_cache:
-          key: project-cache
+          key: stable-cache-v0
           paths:
             - "~/.cargo"
             - "./target"
+
+workflows:
+  version: 2
+  codeformat:
+    jobs:
+      - codeformat
+  stable:
+    jobs:
+      - stable
+  nightly:
+    jobs:
+      - nightly
