@@ -1,4 +1,4 @@
-use crypto_keyderive::{
+use crypto_wallet_gen::{
     derive_hd_wallet, mnemonic_to_seed, seed_to_bitcoin_wallet, seed_to_monero_wallet,
     Bip44DerivationPath, BitcoinWallet, CoinType, MoneroWallet, Seed,
 };
