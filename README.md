@@ -35,11 +35,11 @@ Repeat Password:
 Mnemonic: border visit cupboard great address trumpet cash either castle rubber tape foil combine mix width burst crunch broccoli family resist fish build develop when
 Password: [omitted]
 Address: 43pFzcvF5SVWrcvSb3t6d85ZWfD2BW4oyGj1dmzR63JSHvzRnfhNKUdBJQxmFD8JCWNRBRJuH9p3LbrYiuq3CDnkTCWWvW7
-Private Key: a39ed91d4bd30080cc4e4a9e8a8ca6be3d7eb92648f7ee211fae8c2335440009
-Public Key: 39d996da5d57f6b27e916d0f6492fb1b44045451a5a7d85e02757d560b582365
+Private Spend Key: a39ed91d4bd30080cc4e4a9e8a8ca6be3d7eb92648f7ee211fae8c2335440009
+Private View Key: c654cd31f28a12a711b17a6b286c92ae7ab574c2992935a56aa5ac40bf3cff0d
 ```
 
-That's it. The address, private key and public key can be used to import the wallet into the Monero client.
+That's it. The address, private spend key and private view key can be used to import the wallet into the Monero client.
 
 Now say you loose access to your Bitcoin or Monero wallet, using the phrase and step 2 above, you can always recover the Monero wallet again, and similarly you can recover your bitcoin wallet:
 

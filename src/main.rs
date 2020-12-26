@@ -112,11 +112,11 @@ fn main() -> Result<()> {
             let wallet = seed_to_monero_wallet(derived)?;
 
             println!(
-                "Mnemonic: {}\nPassword: [omitted]\nAddress: {}\nPrivate Key: {}\nPublic Key: {}",
+                "Mnemonic: {}\nPassword: [omitted]\nAddress: {}\nPrivate Spend Key: {}\nPrivate View Key: {}",
                 mnemonic,
                 wallet.address(),
                 wallet.private_spend_key(),
-                wallet.public_spend_key(),
+                wallet.private_view_key()?,
             );
         }
         CoinType::BTC => {

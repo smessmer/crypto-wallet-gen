@@ -23,16 +23,20 @@ fn xmr_example_without_password() {
     .unwrap();
     assert_eq!(
         "e62551cad9fe0f05d7c84cf6a0ef7e8fc0534c2694279fc6e46d38f21a3f6ed3",
-        hex::encode(derived.as_bytes())
+        hex::encode(derived.as_bytes()),
     );
     let wallet = seed_to_monero_wallet(derived).unwrap();
     assert_eq!(
         "dd62d51183f6208cf4d1b9af523f2c80bf534c2694279fc6e46d38f21a3f6e03",
-        wallet.private_spend_key()
+        wallet.private_spend_key(),
     );
     assert_eq!(
         "deb53426c8ea9bc20581d0a9489e5b71df16219008c45e7747db98c42d7cf522",
-        wallet.public_spend_key()
+        wallet.public_spend_key(),
+    );
+    assert_eq!(
+        "7838567e050aa2dc3964bca85c3a42d9cec5b77b3d8f055e2763641fdce53c07",
+        wallet.private_view_key().unwrap(),
     );
     assert_eq!("4A4cAKxSbirZTFbkK5LwoYL3hLkVxkT8yLxAz8KCxAT66naEG4pYY9B6Q43zdao1oE3D3mzodbggzNz9t9tGvE8N3jVnu3A", wallet.address());
 }
