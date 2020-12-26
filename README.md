@@ -9,6 +9,28 @@ Generating a wallet from a seed phrase is a good way to secure your funds. You c
 and store it offline. With this seed phrase (and the chosen password, if any), you can always restore access to your funds if the hard drive with your
 crypto money happens to die. Or you carry it with you to get access on your funds from somewhere else.
 
+
+Installation
+------------
+1. [Install the rust programming language](https://www.rust-lang.org/tools/install)
+
+You might have to call this afterwards, or alternatively just restart your bash session:
+```
+$ source $HOME/.cargo/env
+```
+
+Also make sure, you have openssl and a linker installed, for example by running the following:
+```
+$ sudo apt install libssl-dev pkg-config gcc
+```
+
+2. Check out the crypto-wallet-gen repository and install it
+```
+$ git clone https://github.com/smessmer/crypto-wallet-gen
+$ cd crypto-wallet-gen
+$ cargo install --path .
+```
+
 Example
 -------
 
