@@ -1,6 +1,8 @@
 Crypto Wallet Generator
 -----------------------
 
+[![smessmer](https://circleci.com/gh/smessmer/crypto-wallet-gen/tree/master.svg?style=svg)](https://app.circleci.com/pipelines/github/smessmer/crypto-wallet-gen)
+
 This is a utility to generate seed phrases and to generate crypto currency wallets from a seed phrase.
 This way, you only need to remember one seed phrase and can generate wallets from it for multiple currencies.
 A password can be added in the generation step so that you need both the seed phrase and the password to generate the wallets and access your funds.
@@ -39,7 +41,7 @@ Example
 ```
 $ crypto-wallet-gen -c BTC
 Password: 
-Repeat Password: 
+Repeat Password:
 Mnemonic: border visit cupboard great address trumpet cash either castle rubber tape foil combine mix width burst crunch broccoli family resist fish build develop when
 Password: [omitted]
 WIF: KyFcTdhE77i1WLE6SsxiPkPSfst1w49t8PhveEWPu1zdjJmQ5V9t
