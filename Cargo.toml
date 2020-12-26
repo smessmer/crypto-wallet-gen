@@ -1,15 +1,15 @@
 [package]
 authors = ["Sebastian Messmer"]
 edition = "2018"
-name = "crypto-keyderive"
+name = "crypto-wallet-gen"
 version = "0.1.0"
 
 [lib]
-name = "crypto_keyderive"
+name = "crypto_wallet_gen"
 path = "src/lib.rs"
 
 [[bin]]
-name = "crypto-keyderive"
+name = "crypto-wallet-gen"
 path = "src/main.rs"
 
 [dependencies]

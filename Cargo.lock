@@ -192,23 +192,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 
 [[package]]
-name = "crypto-keyderive"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bitcoin",
- "clap",
- "hex",
- "libsecp256k1",
- "rand 0.8.0",
- "thiserror",
- "tiny-bip39",
- "tiny-hderive",
- "trompt",
- "wallet-gen",
-]
-
-[[package]]
 name = "crypto-mac"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -236,6 +219,23 @@ checksum = "b584a330336237c1eecd3e94266efb216c56ed91225d634cb2991c5f3fd1aeab"
 dependencies = [
  "generic-array 0.14.4",
  "subtle 2.4.0",
+]
+
+[[package]]
+name = "crypto-wallet-gen"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bitcoin",
+ "clap",
+ "hex",
+ "libsecp256k1",
+ "rand 0.8.0",
+ "thiserror",
+ "tiny-bip39",
+ "tiny-hderive",
+ "trompt",
+ "wallet-gen",
 ]
 
 [[package]]
