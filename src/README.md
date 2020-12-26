@@ -59,3 +59,5 @@ This tool uses BIP32/BIP44 derivation from your seed phrase and password and the
 That is, for bitcoin we use "m/44'/0'/0'/0/0" and for monero we use "m/44'/128'/0'/0/0".
 For bitcoin, the derived key can be directly used as a bitcoin wallet.
 For monero, we follow the algorithm described in https://github.com/libbitcoin/libbitcoin-system/wiki/Altcoin-Version-Mappings#10-monero-xmr-bip-3944-technology-examples .
+
+The example from that site is one of the integration tests in this repository. Also some examples generated at https://iancoleman.io/bip39/ .
