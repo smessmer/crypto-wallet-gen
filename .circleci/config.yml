@@ -9,10 +9,13 @@ jobs:
       - restore_cache:
           key: rustfmt-cache-v0
       - run:
-          name: Check formatting
+          name: Install rustfmt
           command: |
             rustup component add rustfmt
-            rustfmt --version
+            cargo fmt -- --version
+      - run:
+          name: Check formatting
+          command: |
             cargo fmt -- --check
       - save_cache:
           key: rustfmt-cache-v0
@@ -27,11 +30,14 @@ jobs:
       - restore_cache:
           key: nightly-cache-v0
       - run:
-          name: Build
+          name: Install nightly rust
           command: |
             rustup install nightly
             rustup run nightly rustc --version --verbose
             rustup run nightly cargo --version --verbose
+      - run:
+          name: Build
+          command: |
             rustup run nightly cargo build
       - run:
           name: Test
@@ -49,17 +55,43 @@ jobs:
       - restore_cache:
           key: stable-cache-v0
       - run:
-          name: Build
+          name: Install stable rust
           command: |
             rustup install stable
             rustup run stable rustc --version --verbose
             rustup run stable cargo --version --verbose
+      - run:
+          name: Build
+          command: |
             rustup run stable cargo build
       - run:
           name: Test
           command: rustup run stable cargo test
       - save_cache:
           key: stable-cache-v0
+          paths:
+            - "~/.cargo"
+            - "./target"
+  clippy:
+    docker:
+      - image: rust:1
+    steps:
+      - checkout
+      - restore_cache:
+          key: clippy-cache-v0
+      - run:
+          name: Install clippy
+          command: |
+            rustup component add clippy
+            cargo clippy --version
+      - run:
+          name: Check
+          command: |
+            cargo clippy -- -D warnings
+            # also check tests and non-default crate features
+            cargo clippy --all-targets --all-features -- -D warnings
+      - save_cache:
+          key: clippy-cache-v0
           paths:
             - "~/.cargo"
             - "./target"
@@ -75,3 +107,6 @@ workflows:
   nightly:
     jobs:
       - nightly
+  clippy:
+    jobs:
+      - clippy
