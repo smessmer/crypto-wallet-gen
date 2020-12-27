@@ -54,8 +54,9 @@ WIF: KyFcTdhE77i1WLE6SsxiPkPSfst1w49t8PhveEWPu1zdjJmQ5V9t
 
 ## Installation
 
-#### 1. [Install the rust programming language](https://www.rust-lang.org/tools/install)
+#### 1. Install the rust programming language
 
+You can use [this one-step install command](https://www.rust-lang.org/tools/install)
 You might have to call this afterwards, or alternatively just restart your bash session:
 ```
 $ source $HOME/.cargo/env
