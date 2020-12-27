@@ -1,27 +1,26 @@
 #[cfg(test)]
 use anyhow::Result;
 
-pub trait Seed {
-    fn as_bytes(&self) -> &[u8];
+pub struct Seed {
+    seed: Vec<u8>,
 }
 
-pub struct SeedImpl {
-    bytes: Vec<u8>,
-}
-
-impl Seed for SeedImpl {
-    fn as_bytes(&self) -> &[u8] {
-        &self.bytes
+impl Seed {
+    pub fn from_bytes(seed: Vec<u8>) -> Self {
+        Self { seed }
     }
-}
 
-#[cfg(test)]
-pub fn from_bytes(bytes: Vec<u8>) -> impl Seed {
-    SeedImpl { bytes }
-}
+    pub fn to_bytes(&self) -> &[u8] {
+        &self.seed
+    }
 
-#[cfg(test)]
-pub fn from_hex(hex_str: &str) -> Result<impl Seed> {
-    let bytes = hex::decode(hex_str)?;
-    Ok(SeedImpl { bytes })
+    pub fn into_bytes(self) -> Vec<u8> {
+        self.seed
+    }
+
+    #[cfg(test)]
+    pub fn from_hex(hex_str: &str) -> Result<Self> {
+        let seed = hex::decode(hex_str)?;
+        Ok(Self { seed })
+    }
 }

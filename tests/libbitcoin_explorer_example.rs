@@ -1,6 +1,6 @@
 use crypto_wallet_gen::{
     derive_hd_wallet, seed_to_bitcoin_wallet, seed_to_monero_wallet, Bip39Mnemonic,
-    Bip44DerivationPath, BitcoinWallet, CoinType, Mnemonic, MoneroWallet, Seed,
+    Bip44DerivationPath, BitcoinWallet, CoinType, Mnemonic, MoneroWallet,
 };
 
 #[test]
@@ -12,7 +12,7 @@ fn xmr_example_without_password() {
     .unwrap()
     .to_seed("");
     let derived = derive_hd_wallet(
-        seed,
+        &seed,
         Bip44DerivationPath {
             coin_type: CoinType::XMR,
             account: 0,
@@ -23,9 +23,9 @@ fn xmr_example_without_password() {
     .unwrap();
     assert_eq!(
         "e62551cad9fe0f05d7c84cf6a0ef7e8fc0534c2694279fc6e46d38f21a3f6ed3",
-        hex::encode(derived.as_bytes()),
+        hex::encode(derived.to_bytes()),
     );
-    let wallet = seed_to_monero_wallet(derived).unwrap();
+    let wallet = seed_to_monero_wallet(&derived).unwrap();
     assert_eq!(
         "dd62d51183f6208cf4d1b9af523f2c80bf534c2694279fc6e46d38f21a3f6e03",
         wallet.private_spend_key(),
@@ -48,7 +48,7 @@ fn btc_example_without_password() {
         .unwrap()
         .to_seed("");
     let derived = derive_hd_wallet(
-        seed,
+        &seed,
         Bip44DerivationPath {
             coin_type: CoinType::BTC,
             account: 0,
@@ -57,7 +57,7 @@ fn btc_example_without_password() {
         },
     )
     .unwrap();
-    let wallet = seed_to_bitcoin_wallet(derived).unwrap();
+    let wallet = seed_to_bitcoin_wallet(&derived).unwrap();
     assert_eq!(
         "KxpYae1CiPGjy1UUQueMVaDAs1eDpUUzf9QYteGYBJH98hU9Ka1k",
         wallet.wif(),
@@ -71,7 +71,7 @@ fn btc_example_subaddress_without_password() {
         .unwrap()
         .to_seed("");
     let derived = derive_hd_wallet(
-        seed,
+        &seed,
         Bip44DerivationPath {
             coin_type: CoinType::BTC,
             account: 3,
@@ -80,7 +80,7 @@ fn btc_example_subaddress_without_password() {
         },
     )
     .unwrap();
-    let wallet = seed_to_bitcoin_wallet(derived).unwrap();
+    let wallet = seed_to_bitcoin_wallet(&derived).unwrap();
     assert_eq!(
         "L461b4XaN6TzUvS8EceZKFKSBmZwSABxJa1M3FVhW2fngeu5z9mb",
         wallet.wif(),
@@ -94,7 +94,7 @@ fn btc_example_subaddress_with_password() {
         .unwrap()
         .to_seed("My Password");
     let derived = derive_hd_wallet(
-        seed,
+        &seed,
         Bip44DerivationPath {
             coin_type: CoinType::BTC,
             account: 3,
@@ -103,7 +103,7 @@ fn btc_example_subaddress_with_password() {
         },
     )
     .unwrap();
-    let wallet = seed_to_bitcoin_wallet(derived).unwrap();
+    let wallet = seed_to_bitcoin_wallet(&derived).unwrap();
     assert_eq!(
         "KwUhiQrUdSbJPxf1hhdSwHauHdTXNkzT4gZvZyhvjRX9psoiNswG",
         wallet.wif(),

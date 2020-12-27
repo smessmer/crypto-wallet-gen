@@ -98,7 +98,7 @@ fn main() -> Result<()> {
 
     let master_seed = mnemonic.to_seed(&password1);
     let derived = derive_hd_wallet(
-        master_seed,
+        &master_seed,
         Bip44DerivationPath {
             coin_type,
             account: 0,
@@ -108,7 +108,7 @@ fn main() -> Result<()> {
     )?;
     match coin_type {
         CoinType::XMR => {
-            let wallet = seed_to_monero_wallet(derived)?;
+            let wallet = seed_to_monero_wallet(&derived)?;
 
             println!(
                 "Mnemonic: {}\nPassword: [omitted]\nAddress: {}\nPrivate View Key: {}\nPrivate Spend Key: {}",
@@ -119,7 +119,7 @@ fn main() -> Result<()> {
             );
         }
         CoinType::BTC => {
-            let wallet = seed_to_bitcoin_wallet(derived)?;
+            let wallet = seed_to_bitcoin_wallet(&derived)?;
 
             println!(
                 "Mnemonic: {}\nPassword: [omitted]\nWIF: {}",

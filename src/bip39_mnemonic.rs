@@ -6,17 +6,6 @@ use crate::seed::Seed;
 
 const LANG: Language = Language::English;
 
-// TODO Replace trait Seed with this
-pub struct MySeed {
-    seed: Vec<u8>,
-}
-
-impl Seed for MySeed {
-    fn as_bytes(&self) -> &[u8] {
-        &self.seed
-    }
-}
-
 pub trait Mnemonic: Sized {
     fn generate() -> Self;
 
@@ -24,7 +13,7 @@ pub trait Mnemonic: Sized {
     fn into_phrase(self) -> String;
     fn from_phrase(phrase: &str) -> Result<Self>;
 
-    fn to_seed(&self, password: &str) -> MySeed;
+    fn to_seed(&self, password: &str) -> Seed;
 }
 
 pub struct Bip39Mnemonic {
@@ -59,10 +48,8 @@ impl Mnemonic for Bip39Mnemonic {
         Ok(Self { mnemonic })
     }
 
-    fn to_seed(&self, password: &str) -> MySeed {
-        MySeed {
-            seed: _Seed::new(&self.mnemonic, password).as_bytes().to_vec(),
-        }
+    fn to_seed(&self, password: &str) -> Seed {
+        Seed::from_bytes(_Seed::new(&self.mnemonic, password).as_bytes().to_vec())
     }
 }
 
@@ -77,7 +64,7 @@ mod tests {
                 Bip39Mnemonic::from_phrase(phrase)
                     .unwrap()
                     .to_seed(password)
-                    .as_bytes()
+                    .to_bytes()
             )
         );
     }

@@ -15,10 +15,10 @@ impl BitcoinWallet for PrivateKey {
     }
 }
 
-pub fn seed_to_bitcoin_wallet(seed: impl Seed) -> Result<impl BitcoinWallet> {
+pub fn seed_to_bitcoin_wallet(seed: &Seed) -> Result<impl BitcoinWallet> {
     Ok(PrivateKey {
         compressed: true,
         network: Network::Bitcoin,
-        key: SecretKey::from_slice(seed.as_bytes())?,
+        key: SecretKey::from_slice(seed.to_bytes())?,
     })
 }
