@@ -54,7 +54,7 @@ WIF: KyFcTdhE77i1WLE6SsxiPkPSfst1w49t8PhveEWPu1zdjJmQ5V9t
 
 ## Installation
 
-1. [Install the rust programming language](https://www.rust-lang.org/tools/install)
+#### 1. [Install the rust programming language](https://www.rust-lang.org/tools/install)
 
 You might have to call this afterwards, or alternatively just restart your bash session:
 ```
@@ -66,7 +66,7 @@ Also make sure, you have openssl and a linker installed, for example by running 
 $ sudo apt install libssl-dev pkg-config gcc
 ```
 
-2. Check out the crypto-wallet-gen repository and install it
+#### 2. Check out the crypto-wallet-gen repository and install it
 ```
 $ git clone https://github.com/smessmer/crypto-wallet-gen
 $ cd crypto-wallet-gen
