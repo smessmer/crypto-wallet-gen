@@ -77,7 +77,7 @@ $ cargo install --path .
 
 ## How keys are derived
 
-This tool uses [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)/[BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) derivation from your seed phrase and password and the derivation path `m/44'/{coin}'/0'/0/0`.
+This tool uses [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) + [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) + [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) derivation from your seed phrase and password and the derivation path `m/44'/{coin}'/0'/0/0`.
 That is, for bitcoin we use `m/44'/0'/0'/0/0` and for monero we use `m/44'/128'/0'/0/0`.
 For bitcoin, the derived key can be directly used as a bitcoin wallet.
 For monero, we follow the algorithm described [here](https://github.com/libbitcoin/libbitcoin-system/wiki/Altcoin-Version-Mappings#10-monero-xmr-bip-3944-technology-examples).
