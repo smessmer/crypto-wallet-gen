@@ -4,8 +4,8 @@ use thiserror::Error;
 use trompt::Trompt;
 
 use crypto_wallet_gen::{
-    derive_hd_wallet, generate_mnemonic, mnemonic_to_seed, seed_to_bitcoin_wallet,
-    seed_to_monero_wallet, Bip44DerivationPath, BitcoinWallet, CoinType, MoneroWallet,
+    derive_hd_wallet, seed_to_bitcoin_wallet, seed_to_monero_wallet, Bip39Mnemonic,
+    Bip44DerivationPath, BitcoinWallet, CoinType, Mnemonic, MoneroWallet,
 };
 
 // TODO This is only needed because trompt::Error doesn't implement std::error::TromptError. We should upstream a fix instead.
@@ -84,9 +84,8 @@ fn main() -> Result<()> {
     let coin_type = value_t!(args, "coin", CoinType).unwrap_or_else(|e| e.exit());
     let mnemonic = args
         .value_of("from-mnemonic")
-        .map(String::from)
-        .map(Ok)
-        .unwrap_or_else(generate_mnemonic)?;
+        .map(Bip39Mnemonic::from_phrase)
+        .unwrap_or_else(|| Ok(Bip39Mnemonic::generate()))?;
     let password1 = Trompt::stdout()
         .silent()
         .prompt("Password: ")
@@ -97,7 +96,7 @@ fn main() -> Result<()> {
         .map_err(TromptError::from)?;
     ensure!(password1 == password2, "Passwords don't match");
 
-    let master_seed = mnemonic_to_seed(&mnemonic, &password1)?;
+    let master_seed = mnemonic.to_seed(&password1);
     let derived = derive_hd_wallet(
         master_seed,
         Bip44DerivationPath {
@@ -113,10 +112,10 @@ fn main() -> Result<()> {
 
             println!(
                 "Mnemonic: {}\nPassword: [omitted]\nAddress: {}\nPrivate View Key: {}\nPrivate Spend Key: {}",
-                mnemonic,
+                mnemonic.phrase(),
                 wallet.address(),
-                wallet.private_view_key(),
-                wallet.private_spend_key()?,
+                wallet.private_view_key()?,
+                wallet.private_spend_key(),
             );
         }
         CoinType::BTC => {
@@ -124,7 +123,7 @@ fn main() -> Result<()> {
 
             println!(
                 "Mnemonic: {}\nPassword: [omitted]\nWIF: {}",
-                mnemonic,
+                mnemonic.phrase(),
                 wallet.wif(),
             );
         }

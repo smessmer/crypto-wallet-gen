@@ -1,32 +1,69 @@
 use anyhow::Result;
-use bip39::{Language, Mnemonic, Seed as Bip39Seed};
+use bip39::{Language, Mnemonic as _Mnemonic, Seed as _Seed};
 use rand::{rngs::OsRng, thread_rng, RngCore};
 
 use crate::seed::Seed;
 
-impl Seed for Bip39Seed {
+const LANG: Language = Language::English;
+
+// TODO Replace trait Seed with this
+pub struct MySeed {
+    seed: Vec<u8>,
+}
+
+impl Seed for MySeed {
     fn as_bytes(&self) -> &[u8] {
-        Bip39Seed::as_bytes(self)
+        &self.seed
     }
 }
 
-pub fn mnemonic_to_seed(phrase: &str, password: &str) -> Result<impl Seed> {
-    let mnemonic = Mnemonic::from_phrase(phrase, Language::English)?;
-    Ok(Bip39Seed::new(&mnemonic, password))
+pub trait Mnemonic: Sized {
+    fn generate() -> Self;
+
+    fn phrase(&self) -> &str;
+    fn into_phrase(self) -> String;
+    fn from_phrase(phrase: &str) -> Result<Self>;
+
+    fn to_seed(&self, password: &str) -> MySeed;
 }
 
-pub fn generate_mnemonic() -> Result<String> {
-    const ENTROPY_LENGTH: usize = 32;
-    // XOR an OS rng and a pseudo rng to get our entropy. Probably not necessary but doesn't hurt either.
-    let mut prng_entropy: [u8; ENTROPY_LENGTH] = [0; ENTROPY_LENGTH];
-    thread_rng().fill_bytes(&mut prng_entropy);
-    let mut entropy: [u8; ENTROPY_LENGTH] = [0; ENTROPY_LENGTH];
-    OsRng.fill_bytes(&mut entropy);
-    for i in 0..ENTROPY_LENGTH {
-        entropy[i] ^= prng_entropy[i];
+pub struct Bip39Mnemonic {
+    mnemonic: _Mnemonic,
+}
+
+impl Mnemonic for Bip39Mnemonic {
+    fn generate() -> Self {
+        const ENTROPY_LENGTH: usize = 32;
+        // XOR an OS rng and a pseudo rng to get our entropy. Probably not necessary but doesn't hurt either.
+        let mut prng_entropy: [u8; ENTROPY_LENGTH] = [0; ENTROPY_LENGTH];
+        thread_rng().fill_bytes(&mut prng_entropy);
+        let mut entropy: [u8; ENTROPY_LENGTH] = [0; ENTROPY_LENGTH];
+        OsRng.fill_bytes(&mut entropy);
+        for i in 0..ENTROPY_LENGTH {
+            entropy[i] ^= prng_entropy[i];
+        }
+        let mnemonic = _Mnemonic::from_entropy(&entropy, LANG).expect("Invalid key length");
+        Self { mnemonic }
     }
-    let mnemonic = Mnemonic::from_entropy(&entropy, Language::English)?;
-    Ok(mnemonic.into_phrase())
+
+    fn phrase(&self) -> &str {
+        self.mnemonic.phrase()
+    }
+
+    fn into_phrase(self) -> String {
+        self.mnemonic.into_phrase()
+    }
+
+    fn from_phrase(phrase: &str) -> Result<Self> {
+        let mnemonic = _Mnemonic::from_phrase(phrase, LANG)?;
+        Ok(Self { mnemonic })
+    }
+
+    fn to_seed(&self, password: &str) -> MySeed {
+        MySeed {
+            seed: _Seed::new(&self.mnemonic, password).as_bytes().to_vec(),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -36,7 +73,12 @@ mod tests {
     fn expect_generated_seed_is(expected_seed: &str, phrase: &str, password: &str) {
         assert_eq!(
             expected_seed,
-            hex::encode(mnemonic_to_seed(phrase, password).unwrap().as_bytes())
+            hex::encode(
+                Bip39Mnemonic::from_phrase(phrase)
+                    .unwrap()
+                    .to_seed(password)
+                    .as_bytes()
+            )
         );
     }
 
@@ -132,7 +174,7 @@ mod tests {
 
     #[test]
     fn generated_phrase_is_24_words() {
-        let phrase = generate_mnemonic().unwrap();
+        let phrase = Bip39Mnemonic::generate().into_phrase();
         assert_eq!(23, phrase.chars().filter(|a| *a == ' ').count());
     }
 }

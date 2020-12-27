@@ -1,16 +1,16 @@
 use crypto_wallet_gen::{
-    derive_hd_wallet, mnemonic_to_seed, seed_to_bitcoin_wallet, seed_to_monero_wallet,
-    Bip44DerivationPath, BitcoinWallet, CoinType, MoneroWallet, Seed,
+    derive_hd_wallet, seed_to_bitcoin_wallet, seed_to_monero_wallet, Bip39Mnemonic,
+    Bip44DerivationPath, BitcoinWallet, CoinType, Mnemonic, MoneroWallet, Seed,
 };
 
 #[test]
 fn xmr_example_without_password() {
     // Example taken from https://github.com/libbitcoin/libbitcoin-system/wiki/Altcoin-Version-Mappings#10-monero-xmr-bip-3944-technology-examples
-    let seed = mnemonic_to_seed(
+    let seed = Bip39Mnemonic::from_phrase(
         "radar blur cabbage chef fix engine embark joy scheme fiction master release",
-        "",
     )
-    .unwrap();
+    .unwrap()
+    .to_seed("");
     let derived = derive_hd_wallet(
         seed,
         Bip44DerivationPath {
@@ -44,7 +44,9 @@ fn xmr_example_without_password() {
 #[test]
 fn btc_example_without_password() {
     // Generated at https://iancoleman.io/bip39/
-    let seed = mnemonic_to_seed("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice", "").unwrap();
+    let seed = Bip39Mnemonic::from_phrase("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice")
+        .unwrap()
+        .to_seed("");
     let derived = derive_hd_wallet(
         seed,
         Bip44DerivationPath {
@@ -65,7 +67,9 @@ fn btc_example_without_password() {
 #[test]
 fn btc_example_subaddress_without_password() {
     // Generated at https://iancoleman.io/bip39/
-    let seed = mnemonic_to_seed("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice", "").unwrap();
+    let seed = Bip39Mnemonic::from_phrase("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice")
+        .unwrap()
+        .to_seed("");
     let derived = derive_hd_wallet(
         seed,
         Bip44DerivationPath {
@@ -86,7 +90,9 @@ fn btc_example_subaddress_without_password() {
 #[test]
 fn btc_example_subaddress_with_password() {
     // Generated at https://iancoleman.io/bip39/
-    let seed = mnemonic_to_seed("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice", "My Password").unwrap();
+    let seed = Bip39Mnemonic::from_phrase("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice")
+        .unwrap()
+        .to_seed("My Password");
     let derived = derive_hd_wallet(
         seed,
         Bip44DerivationPath {
