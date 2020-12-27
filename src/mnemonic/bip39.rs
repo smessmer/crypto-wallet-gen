@@ -2,19 +2,10 @@ use anyhow::Result;
 use bip39::{Language, Mnemonic as _Mnemonic, Seed as _Seed};
 use rand::{rngs::OsRng, thread_rng, RngCore};
 
+use super::Mnemonic;
 use crate::seed::Seed;
 
 const LANG: Language = Language::English;
-
-pub trait Mnemonic: Sized {
-    fn generate() -> Self;
-
-    fn phrase(&self) -> &str;
-    fn into_phrase(self) -> String;
-    fn from_phrase(phrase: &str) -> Result<Self>;
-
-    fn to_seed(&self, password: &str) -> Seed;
-}
 
 pub struct Bip39Mnemonic {
     mnemonic: _Mnemonic,
