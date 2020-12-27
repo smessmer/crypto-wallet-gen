@@ -5,31 +5,29 @@ use wagyu_monero::network::mainnet::Mainnet;
 use wagyu_monero::private_key::MoneroPrivateKey;
 use wallet_gen::coin::Coin;
 use wallet_gen::cryptonote;
-use wallet_gen::wallet::Wallet;
+use wallet_gen::wallet::Wallet as _Wallet;
 
+use super::Wallet;
 use crate::seed::Seed;
 
-pub trait MoneroWallet {
-    fn address(&self) -> &str;
-    fn private_spend_key(&self) -> &str;
-    fn public_spend_key(&self) -> &str;
-    fn private_view_key(&self) -> Result<String>;
+pub struct MoneroWallet {
+    wallet: _Wallet,
 }
 
-impl MoneroWallet for Wallet {
-    fn address(&self) -> &str {
-        &self.address
+impl MoneroWallet {
+    pub fn address(&self) -> &str {
+        &self.wallet.address
     }
 
-    fn private_spend_key(&self) -> &str {
-        &self.private_key
+    pub fn private_spend_key(&self) -> &str {
+        &self.wallet.private_key
     }
 
-    fn public_spend_key(&self) -> &str {
-        &self.public_key
+    pub fn public_spend_key(&self) -> &str {
+        &self.wallet.public_key
     }
 
-    fn private_view_key(&self) -> Result<String> {
+    pub fn private_view_key(&self) -> Result<String> {
         let key = MoneroPrivateKey::<Mainnet>::from_private_spend_key(
             self.private_spend_key(),
             &MoneroFormat::Standard,
@@ -39,11 +37,13 @@ impl MoneroWallet for Wallet {
     }
 }
 
-pub fn seed_to_monero_wallet(seed: &Seed) -> Result<impl MoneroWallet> {
-    let mut seed_arr = [0; 32];
-    seed_arr.clone_from_slice(seed.to_bytes()); // TODO Make Seed type work with fixed size arrays instead of this?
-    let wallet = cryptonote::from_seed(Coin::Monero, seed_arr)?;
-    Ok(wallet)
+impl Wallet for MoneroWallet {
+    fn from_seed(seed: &Seed) -> Result<MoneroWallet> {
+        let mut seed_arr = [0; 32];
+        seed_arr.clone_from_slice(seed.to_bytes()); // TODO Make Seed type work with fixed size arrays instead of this?
+        let wallet = cryptonote::from_seed(Coin::Monero, seed_arr)?;
+        Ok(MoneroWallet { wallet })
+    }
 }
 
 #[cfg(test)]
@@ -56,7 +56,7 @@ mod tests {
         let seed =
             Seed::from_hex("177c328073abe1486ceb190ee4ef544896f2ff0fe6b1c83d28de2cc68d22b106")
                 .unwrap();
-        let wallet = seed_to_monero_wallet(&seed).unwrap();
+        let wallet = MoneroWallet::from_seed(&seed).unwrap();
         assert_eq!(
             "177c328073abe1486ceb190ee4ef544896f2ff0fe6b1c83d28de2cc68d22b106",
             wallet.private_spend_key(),
@@ -78,7 +78,7 @@ mod tests {
         let seed =
             Seed::from_hex("786dbcf5c283165f77445327ddaf44a05104d54eb4e5920da776d1a844b20703")
                 .unwrap();
-        let wallet = seed_to_monero_wallet(&seed).unwrap();
+        let wallet = MoneroWallet::from_seed(&seed).unwrap();
         assert_eq!(
             "786dbcf5c283165f77445327ddaf44a05104d54eb4e5920da776d1a844b20703",
             wallet.private_spend_key(),
