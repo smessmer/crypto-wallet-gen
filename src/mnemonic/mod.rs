@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use crate::seed::Seed;
+use crate::hd_seed::HDSeed;
 
 pub trait Mnemonic: Sized {
     fn generate() -> Self;
@@ -9,7 +9,7 @@ pub trait Mnemonic: Sized {
     fn into_phrase(self) -> String;
     fn from_phrase(phrase: &str) -> Result<Self>;
 
-    fn to_seed(&self, password: &str) -> Seed;
+    fn to_seed(&self, password: &str) -> HDSeed;
 }
 
 pub mod bip39;

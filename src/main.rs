@@ -5,7 +5,7 @@ use trompt::Trompt;
 
 use crypto_wallet_gen::{
     seed_to_bitcoin_wallet, seed_to_monero_wallet, Bip39Mnemonic, Bip44DerivationPath,
-    BitcoinWallet, CoinType, HDSeed, Mnemonic, MoneroWallet,
+    BitcoinWallet, CoinType, Mnemonic, MoneroWallet,
 };
 
 // TODO This is only needed because trompt::Error doesn't implement std::error::TromptError. We should upstream a fix instead.
@@ -96,7 +96,7 @@ fn main() -> Result<()> {
         .map_err(TromptError::from)?;
     ensure!(password1 == password2, "Passwords don't match");
 
-    let master_seed = HDSeed::new(mnemonic.to_seed(&password1));
+    let master_seed = mnemonic.to_seed(&password1);
     let derived = master_seed.derive(Bip44DerivationPath {
         coin_type,
         account: 0,

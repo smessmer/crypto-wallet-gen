@@ -3,6 +3,7 @@ use bip39::{Language, Mnemonic as _Mnemonic, Seed as _Seed};
 use rand::{rngs::OsRng, thread_rng, RngCore};
 
 use super::Mnemonic;
+use crate::hd_seed::HDSeed;
 use crate::seed::Seed;
 
 const LANG: Language = Language::English;
@@ -39,8 +40,10 @@ impl Mnemonic for Bip39Mnemonic {
         Ok(Self { mnemonic })
     }
 
-    fn to_seed(&self, password: &str) -> Seed {
-        Seed::from_bytes(_Seed::new(&self.mnemonic, password).as_bytes().to_vec())
+    fn to_seed(&self, password: &str) -> HDSeed {
+        HDSeed::new(Seed::from_bytes(
+            _Seed::new(&self.mnemonic, password).as_bytes().to_vec(),
+        ))
     }
 }
 
@@ -55,6 +58,7 @@ mod tests {
                 Bip39Mnemonic::from_phrase(phrase)
                     .unwrap()
                     .to_seed(password)
+                    .master_seed()
                     .to_bytes()
             )
         );

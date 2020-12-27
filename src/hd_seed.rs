@@ -119,6 +119,10 @@ impl HDSeed {
         Self { master_seed }
     }
 
+    pub fn master_seed(&self) -> &Seed {
+        &self.master_seed
+    }
+
     pub fn derive(&self, path: Bip44DerivationPath) -> Result<Seed> {
         let ext = ExtendedPrivKey::derive(self.master_seed.to_bytes(), path)
             .map_err(DeriveError::from)?;

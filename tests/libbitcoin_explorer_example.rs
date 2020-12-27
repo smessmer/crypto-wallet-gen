@@ -1,6 +1,6 @@
 use crypto_wallet_gen::{
     seed_to_bitcoin_wallet, seed_to_monero_wallet, Bip39Mnemonic, Bip44DerivationPath,
-    BitcoinWallet, CoinType, HDSeed, Mnemonic, MoneroWallet,
+    BitcoinWallet, CoinType, Mnemonic, MoneroWallet,
 };
 
 #[test]
@@ -11,7 +11,7 @@ fn xmr_example_without_password() {
     )
     .unwrap()
     .to_seed("");
-    let derived = HDSeed::new(seed)
+    let derived = seed
         .derive(Bip44DerivationPath {
             coin_type: CoinType::XMR,
             account: 0,
@@ -45,7 +45,7 @@ fn btc_example_without_password() {
     let seed = Bip39Mnemonic::from_phrase("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice")
         .unwrap()
         .to_seed("");
-    let derived = HDSeed::new(seed)
+    let derived = seed
         .derive(Bip44DerivationPath {
             coin_type: CoinType::BTC,
             account: 0,
@@ -66,7 +66,7 @@ fn btc_example_subaddress_without_password() {
     let seed = Bip39Mnemonic::from_phrase("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice")
         .unwrap()
         .to_seed("");
-    let derived = HDSeed::new(seed)
+    let derived = seed
         .derive(Bip44DerivationPath {
             coin_type: CoinType::BTC,
             account: 3,
@@ -87,7 +87,7 @@ fn btc_example_subaddress_with_password() {
     let seed = Bip39Mnemonic::from_phrase("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice")
         .unwrap()
         .to_seed("My Password");
-    let derived = HDSeed::new(seed)
+    let derived = seed
         .derive(Bip44DerivationPath {
             coin_type: CoinType::BTC,
             account: 3,
