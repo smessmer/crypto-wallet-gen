@@ -1,6 +1,6 @@
 use crypto_wallet_gen::{
-    derive_hd_wallet, seed_to_bitcoin_wallet, seed_to_monero_wallet, Bip39Mnemonic,
-    Bip44DerivationPath, BitcoinWallet, CoinType, Mnemonic, MoneroWallet,
+    seed_to_bitcoin_wallet, seed_to_monero_wallet, Bip39Mnemonic, Bip44DerivationPath,
+    BitcoinWallet, CoinType, HDSeed, Mnemonic, MoneroWallet,
 };
 
 #[test]
@@ -11,16 +11,14 @@ fn xmr_example_without_password() {
     )
     .unwrap()
     .to_seed("");
-    let derived = derive_hd_wallet(
-        &seed,
-        Bip44DerivationPath {
+    let derived = HDSeed::new(seed)
+        .derive(Bip44DerivationPath {
             coin_type: CoinType::XMR,
             account: 0,
             change: None,
             address_index: None,
-        },
-    )
-    .unwrap();
+        })
+        .unwrap();
     assert_eq!(
         "e62551cad9fe0f05d7c84cf6a0ef7e8fc0534c2694279fc6e46d38f21a3f6ed3",
         hex::encode(derived.to_bytes()),
@@ -47,16 +45,14 @@ fn btc_example_without_password() {
     let seed = Bip39Mnemonic::from_phrase("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice")
         .unwrap()
         .to_seed("");
-    let derived = derive_hd_wallet(
-        &seed,
-        Bip44DerivationPath {
+    let derived = HDSeed::new(seed)
+        .derive(Bip44DerivationPath {
             coin_type: CoinType::BTC,
             account: 0,
             change: Some(0),
             address_index: Some(0),
-        },
-    )
-    .unwrap();
+        })
+        .unwrap();
     let wallet = seed_to_bitcoin_wallet(&derived).unwrap();
     assert_eq!(
         "KxpYae1CiPGjy1UUQueMVaDAs1eDpUUzf9QYteGYBJH98hU9Ka1k",
@@ -70,16 +66,14 @@ fn btc_example_subaddress_without_password() {
     let seed = Bip39Mnemonic::from_phrase("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice")
         .unwrap()
         .to_seed("");
-    let derived = derive_hd_wallet(
-        &seed,
-        Bip44DerivationPath {
+    let derived = HDSeed::new(seed)
+        .derive(Bip44DerivationPath {
             coin_type: CoinType::BTC,
             account: 3,
             change: Some(1),
             address_index: Some(15),
-        },
-    )
-    .unwrap();
+        })
+        .unwrap();
     let wallet = seed_to_bitcoin_wallet(&derived).unwrap();
     assert_eq!(
         "L461b4XaN6TzUvS8EceZKFKSBmZwSABxJa1M3FVhW2fngeu5z9mb",
@@ -93,16 +87,14 @@ fn btc_example_subaddress_with_password() {
     let seed = Bip39Mnemonic::from_phrase("sheriff cry practice silly depth still legal short mixture salad scan fever nephew solar hill correct birth wash banner mammal impose price kind spice")
         .unwrap()
         .to_seed("My Password");
-    let derived = derive_hd_wallet(
-        &seed,
-        Bip44DerivationPath {
+    let derived = HDSeed::new(seed)
+        .derive(Bip44DerivationPath {
             coin_type: CoinType::BTC,
             account: 3,
             change: Some(1),
             address_index: Some(15),
-        },
-    )
-    .unwrap();
+        })
+        .unwrap();
     let wallet = seed_to_bitcoin_wallet(&derived).unwrap();
     assert_eq!(
         "KwUhiQrUdSbJPxf1hhdSwHauHdTXNkzT4gZvZyhvjRX9psoiNswG",

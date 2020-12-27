@@ -110,9 +110,20 @@ impl tiny_hderive::bip44::IntoDerivationPath for Bip44DerivationPath {
     }
 }
 
-pub fn derive_hd_wallet(seed: &Seed, path: Bip44DerivationPath) -> Result<Seed> {
-    let ext = ExtendedPrivKey::derive(seed.to_bytes(), path).map_err(DeriveError::from)?;
-    Ok(Seed::from_bytes(ext.secret().to_vec()))
+pub struct HDSeed {
+    master_seed: Seed,
+}
+
+impl HDSeed {
+    pub fn new(master_seed: Seed) -> Self {
+        Self { master_seed }
+    }
+
+    pub fn derive(&self, path: Bip44DerivationPath) -> Result<Seed> {
+        let ext = ExtendedPrivKey::derive(self.master_seed.to_bytes(), path)
+            .map_err(DeriveError::from)?;
+        Ok(Seed::from_bytes(ext.secret().to_vec()))
+    }
 }
 
 #[cfg(test)]
@@ -123,16 +134,14 @@ mod tests {
     fn test_account0() {
         // Generated with https://iancoleman.io/bip39/ and using "bx hd-to-ec xprvA1gz733iMcZ7hmAwuWdzw6suwn3ScGtpjGH7qzdFTKqtMvyRyBZ92n3fpvLahFnqXpA13NwPktkkCumeaRQpRg7iNkcvUoBu4T1eK4fhNDv"
         let master_seed = hex::decode("04c3fca05109eb0d188971e66ba949a4a4547b6c0eceddcb3e796e6ddb7d489826901932dbab5d6aa71421de1d119b4d472a92702e2642b2d9259d4766d84284").unwrap();
-        let child_seed = derive_hd_wallet(
-            &Seed::from_bytes(master_seed),
-            Bip44DerivationPath {
+        let child_seed = HDSeed::new(Seed::from_bytes(master_seed))
+            .derive(Bip44DerivationPath {
                 coin_type: CoinType::BTC,
                 account: 0,
                 change: Some(0),
                 address_index: None,
-            },
-        )
-        .unwrap();
+            })
+            .unwrap();
         assert_eq!(
             "d2b621b864d8aa9ff26dc32346868ea13e63ed0185dee5954d5615fc2381c4a3",
             hex::encode(child_seed.to_bytes())
@@ -143,16 +152,14 @@ mod tests {
     fn test_account1() {
         // Generated with https://iancoleman.io/bip39/ and using "bx hd-to-ec xprvA2M4iy8qw2abD2MqssXJvtVU1p9AHHFPiqcSZzj28Gt1ZGwJ4oXLGQUK1R7JYQgtHA54t3yiKtSGgSVHwvxA1YJV7R7pbUefWa6u1E61rbS"
         let master_seed = hex::decode("04c3fca05109eb0d188971e66ba949a4a4547b6c0eceddcb3e796e6ddb7d489826901932dbab5d6aa71421de1d119b4d472a92702e2642b2d9259d4766d84284").unwrap();
-        let child_seed = derive_hd_wallet(
-            &Seed::from_bytes(master_seed),
-            Bip44DerivationPath {
+        let child_seed = HDSeed::new(Seed::from_bytes(master_seed))
+            .derive(Bip44DerivationPath {
                 coin_type: CoinType::BTC,
                 account: 1,
                 change: Some(0),
                 address_index: None,
-            },
-        )
-        .unwrap();
+            })
+            .unwrap();
         assert_eq!(
             "f258d2fb41fe5af9295d8fffd5f4575a54314772fd812905ebb1e5f3554b7fc8",
             hex::encode(child_seed.to_bytes())

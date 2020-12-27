@@ -4,8 +4,8 @@ use thiserror::Error;
 use trompt::Trompt;
 
 use crypto_wallet_gen::{
-    derive_hd_wallet, seed_to_bitcoin_wallet, seed_to_monero_wallet, Bip39Mnemonic,
-    Bip44DerivationPath, BitcoinWallet, CoinType, Mnemonic, MoneroWallet,
+    seed_to_bitcoin_wallet, seed_to_monero_wallet, Bip39Mnemonic, Bip44DerivationPath,
+    BitcoinWallet, CoinType, HDSeed, Mnemonic, MoneroWallet,
 };
 
 // TODO This is only needed because trompt::Error doesn't implement std::error::TromptError. We should upstream a fix instead.
@@ -96,16 +96,13 @@ fn main() -> Result<()> {
         .map_err(TromptError::from)?;
     ensure!(password1 == password2, "Passwords don't match");
 
-    let master_seed = mnemonic.to_seed(&password1);
-    let derived = derive_hd_wallet(
-        &master_seed,
-        Bip44DerivationPath {
-            coin_type,
-            account: 0,
-            change: Some(0),
-            address_index: Some(0),
-        },
-    )?;
+    let master_seed = HDSeed::new(mnemonic.to_seed(&password1));
+    let derived = master_seed.derive(Bip44DerivationPath {
+        coin_type,
+        account: 0,
+        change: Some(0),
+        address_index: Some(0),
+    })?;
     match coin_type {
         CoinType::XMR => {
             let wallet = seed_to_monero_wallet(&derived)?;
