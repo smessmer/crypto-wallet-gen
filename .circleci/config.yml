@@ -95,6 +95,31 @@ jobs:
           paths:
             - "~/.cargo"
             - "./target"
+  install_instructions:
+    # Test that the installation instructions from the README work
+    docker:
+      - image: ubuntu:20.04
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apt update -qq
+            DEBIAN_FRONTEND=noninteractive apt install -y -qq curl sudo libssl-dev pkg-config gcc
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs  > install_rust.sh
+            chmod +x install_rust.sh
+            ./install_rust.sh -y
+      - run:
+          name: Install
+          command: |
+            source ~/.cargo/env
+            cargo install --path .
+      - run:
+          name: Run
+          command: |
+            source ~/.cargo/env
+            crypto-wallet-gen --version
+            
 
 workflows:
   version: 2
@@ -110,3 +135,6 @@ workflows:
   clippy:
     jobs:
       - clippy
+  install_instructions:
+    jobs:
+      - install_instructions
