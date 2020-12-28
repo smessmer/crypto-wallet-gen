@@ -31,7 +31,7 @@ impl MoneroWallet {
             self.private_key
                 .to_public_key()
                 .to_public_spend_key()
-                .ok_or(anyhow!("Couldn't calculate public spend key"))?,
+                .ok_or_else(|| anyhow!("Couldn't calculate public spend key"))?,
         ))
     }
 
