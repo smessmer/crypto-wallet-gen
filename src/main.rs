@@ -122,8 +122,8 @@ fn main() -> Result<()> {
             println!(
                 "Mnemonic: {}\nPassword: [omitted]\nAddress: {}\nPrivate View Key: {}\nPrivate Spend Key: {}",
                 mnemonic.phrase(),
-                wallet.address(),
-                wallet.private_view_key()?,
+                wallet.address()?,
+                wallet.private_view_key(),
                 wallet.private_spend_key(),
             );
         }

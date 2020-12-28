@@ -29,13 +29,13 @@ fn xmr_example_without_password() {
     );
     assert_eq!(
         "deb53426c8ea9bc20581d0a9489e5b71df16219008c45e7747db98c42d7cf522",
-        wallet.public_spend_key(),
+        wallet.public_spend_key().unwrap(),
     );
     assert_eq!(
         "7838567e050aa2dc3964bca85c3a42d9cec5b77b3d8f055e2763641fdce53c07",
-        wallet.private_view_key().unwrap(),
+        wallet.private_view_key(),
     );
-    assert_eq!("4A4cAKxSbirZTFbkK5LwoYL3hLkVxkT8yLxAz8KCxAT66naEG4pYY9B6Q43zdao1oE3D3mzodbggzNz9t9tGvE8N3jVnu3A", wallet.address());
+    assert_eq!("4A4cAKxSbirZTFbkK5LwoYL3hLkVxkT8yLxAz8KCxAT66naEG4pYY9B6Q43zdao1oE3D3mzodbggzNz9t9tGvE8N3jVnu3A", wallet.address().unwrap());
 }
 
 #[test]
