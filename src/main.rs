@@ -1,5 +1,5 @@
 use anyhow::{ensure, Result};
-use clap::{value_t, App, Arg};
+use clap::{crate_version, value_t, App, Arg};
 use thiserror::Error;
 use trompt::Trompt;
 
@@ -57,7 +57,7 @@ impl From<trompt::Error> for TromptError {
 
 fn main() -> Result<()> {
     let args = App::new("Crypto Wallet Generator")
-        .version("0.1")
+        .version(crate_version!())
         .author("Sebastian Messmer <mail@smessmer.de>")
         .about("Generates crypto currency wallets from mnemonic seeds")
         .arg(
