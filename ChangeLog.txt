@@ -1,0 +1,4 @@
+1.0.1
+------
+- Fix an issue where seeds that would generate private keys with trailing zeroes generate the wrong private keys, see https://gitlab.com/standard-mining/wallet-gen/-/issues/1
+  This was a bug in a dependency and we fixed it by moving to a different dependency library.
