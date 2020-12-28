@@ -2,7 +2,7 @@
 authors = ["Sebastian Messmer"]
 edition = "2018"
 name = "crypto-wallet-gen"
-version = "1.0.0"
+version = "1.0.1"
 
 [lib]
 name = "crypto_wallet_gen"
