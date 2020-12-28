@@ -1,4 +1,4 @@
-use anyhow::{ensure, Result};
+use anyhow::{ensure, Context, Result};
 use clap::{crate_version, value_t, App, Arg};
 use thiserror::Error;
 use trompt::Trompt;
@@ -78,6 +78,14 @@ fn main() -> Result<()> {
                 .case_insensitive(true)
                 .help("The mnemonic seed phrase to use to generate the wallet"),
         )
+        .arg(
+            Arg::with_name("account-index")
+                .short("a")
+                .long("account-index")
+                .default_value("0")
+                .value_name("ACCOUNT INDEX")
+                .help("The account index used for BIP44 key derivation"),
+        )
         .get_matches();
 
     let coin_type = value_t!(args, "coin", CoinType).unwrap_or_else(|e| e.exit());
@@ -85,6 +93,11 @@ fn main() -> Result<()> {
         .value_of("from-mnemonic")
         .map(Bip39Mnemonic::from_phrase)
         .unwrap_or_else(|| Ok(Bip39Mnemonic::generate()))?;
+    let account_index: u32 = args
+        .value_of("account-index")
+        .expect("Can't fail because we specify a default value")
+        .parse()
+        .context("Couldn't parse account-index argument")?;
     let password1 = Trompt::stdout()
         .silent()
         .prompt("Password: ")
@@ -98,7 +111,7 @@ fn main() -> Result<()> {
     let master_seed = mnemonic.to_seed(&password1);
     let derived = master_seed.derive(Bip44DerivationPath {
         coin_type,
-        account: 0,
+        account: account_index,
         change: Some(0),
         address_index: Some(0),
     })?;
