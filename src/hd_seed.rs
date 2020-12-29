@@ -1,7 +1,11 @@
 use anyhow::Result;
+use bitcoin::network::constants::Network;
+use bitcoin::util::bip32::ExtendedPrivKey;
 use clap::arg_enum;
+use secp256k1::Secp256k1;
+use std::convert::TryFrom;
+use std::convert::TryInto;
 use thiserror::Error;
-use tiny_hderive::bip32::ExtendedPrivKey;
 
 use crate::seed::Seed;
 
@@ -18,10 +22,12 @@ pub enum Secp256k1Error {
     InvalidRecoveryId,
     #[error("Invalid message")]
     InvalidMessage,
-    #[error("Invalid input length")]
-    InvalidInputLength,
-    #[error("Tweak out of range")]
-    TweakOutOfRange,
+    #[error("Incorrect signature")]
+    IncorrectSignature,
+    #[error("Invalid tweak")]
+    InvalidTweak,
+    #[error("Not enough memory")]
+    NotEnoughMemory,
 }
 
 impl From<secp256k1::Error> for Secp256k1Error {
@@ -32,34 +38,9 @@ impl From<secp256k1::Error> for Secp256k1Error {
             secp256k1::Error::InvalidSecretKey => Secp256k1Error::InvalidSecretKey,
             secp256k1::Error::InvalidRecoveryId => Secp256k1Error::InvalidRecoveryId,
             secp256k1::Error::InvalidMessage => Secp256k1Error::InvalidMessage,
-            secp256k1::Error::InvalidInputLength => Secp256k1Error::InvalidInputLength,
-            secp256k1::Error::TweakOutOfRange => Secp256k1Error::TweakOutOfRange,
-        }
-    }
-}
-
-// TODO DeriveError is only needed because tiny_hderive::Error doesn't implement std::error::Error. We should probably upstream a pull request.
-#[derive(Error, Debug)]
-pub enum DeriveError {
-    #[error(transparent)]
-    Secp256k1(#[from] Secp256k1Error),
-    #[error("Invalid derivation path")]
-    InvalidDerivationPath,
-    #[error("Invalid child number")]
-    InvalidChildNumber,
-    #[error("Invalid extended priv key")]
-    InvalidExtendedPrivKey,
-}
-
-impl From<tiny_hderive::Error> for DeriveError {
-    fn from(err: tiny_hderive::Error) -> DeriveError {
-        match err {
-            tiny_hderive::Error::Secp256k1(err) => {
-                DeriveError::Secp256k1(Secp256k1Error::from(err))
-            }
-            tiny_hderive::Error::InvalidDerivationPath => DeriveError::InvalidDerivationPath,
-            tiny_hderive::Error::InvalidChildNumber => DeriveError::InvalidChildNumber,
-            tiny_hderive::Error::InvalidExtendedPrivKey => DeriveError::InvalidExtendedPrivKey,
+            secp256k1::Error::IncorrectSignature => Secp256k1Error::IncorrectSignature,
+            secp256k1::Error::InvalidTweak => Secp256k1Error::InvalidTweak,
+            secp256k1::Error::NotEnoughMemory => Secp256k1Error::NotEnoughMemory,
         }
     }
 }
@@ -90,23 +71,28 @@ pub struct Bip44DerivationPath {
     pub address_index: Option<u32>,
 }
 
-impl tiny_hderive::bip44::IntoDerivationPath for Bip44DerivationPath {
-    fn into(self) -> Result<tiny_hderive::bip44::DerivationPath, tiny_hderive::Error> {
-        // TODO Faster implementation if not going through intermediate string representation
-        let mut path_str = format!("m/44'/{}'/{}'", self.coin_type.bip44_value(), self.account);
-        if let Some(change) = self.change {
-            path_str += &format!("/{}", change);
+impl TryFrom<Bip44DerivationPath> for bitcoin::util::bip32::DerivationPath {
+    type Error = anyhow::Error;
+
+    fn try_from(path: Bip44DerivationPath) -> Result<bitcoin::util::bip32::DerivationPath> {
+        use bitcoin::util::bip32::ChildNumber;
+        let mut path_vec = vec![
+            ChildNumber::from_hardened_idx(44).expect("44 is a valid index"),
+            ChildNumber::from_hardened_idx(path.coin_type.bip44_value())?,
+            ChildNumber::from_hardened_idx(path.account)?,
+        ];
+        if let Some(change) = path.change {
+            path_vec.push(ChildNumber::from_normal_idx(change)?);
         } else {
             assert!(
-                self.address_index.is_none(),
+                path.address_index.is_none(),
                 "address_index can only be set when change is set"
             );
         }
-        if let Some(address_index) = self.address_index {
-            path_str += &format!("/{}", address_index);
+        if let Some(address_index) = path.address_index {
+            path_vec.push(ChildNumber::from_normal_idx(address_index)?);
         }
-        use std::str::FromStr;
-        tiny_hderive::bip44::DerivationPath::from_str(&path_str)
+        Ok(path_vec.into())
     }
 }
 
@@ -124,9 +110,11 @@ impl HDSeed {
     }
 
     pub fn derive(&self, path: Bip44DerivationPath) -> Result<Seed> {
-        let ext = ExtendedPrivKey::derive(self.master_seed.to_bytes(), path)
-            .map_err(DeriveError::from)?;
-        Ok(Seed::from_bytes(ext.secret().to_vec()))
+        let ext = ExtendedPrivKey::new_master(Network::Bitcoin, self.master_seed.to_bytes())?;
+        let secp256k1 = Secp256k1::new();
+        let path: bitcoin::util::bip32::DerivationPath = path.try_into()?;
+        let derived = ext.derive_priv(&secp256k1, &path)?;
+        Ok(Seed::from_bytes(derived.private_key.to_bytes()))
     }
 }
 
