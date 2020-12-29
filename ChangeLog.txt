@@ -2,6 +2,7 @@
 ------
 - Build with LTO
 - Remove tiny-hderive dependency
+- Be paranoid and xor together a couple different random generators instead of just using one. Likely an unnecessarily paranoid step but can't hurt either.
 
 1.0.1
 ------

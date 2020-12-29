@@ -3,7 +3,7 @@ use anyhow::Result;
 use crate::hd_seed::HDSeed;
 
 pub trait Mnemonic: Sized {
-    fn generate() -> Self;
+    fn generate() -> Result<Self>;
 
     fn phrase(&self) -> &str;
     fn into_phrase(self) -> String;

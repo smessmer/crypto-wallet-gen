@@ -304,12 +304,18 @@ dependencies = [
  "failure",
  "hex",
  "rand 0.8.0",
+ "rand_chacha 0.3.0",
+ "rand_core 0.5.1",
+ "rand_hc 0.3.0",
+ "rand_jitter",
+ "rdrand",
  "secp256k1 0.19.0",
  "thiserror",
  "tiny-bip39",
  "trompt",
  "wagyu-model",
  "wagyu-monero",
+ "zeroize",
 ]
 
 [[package]]
@@ -853,6 +859,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3190ef7066a446f2e7f42e239d161e905420ccab01eb967c9eb27d21b2322a73"
 dependencies = [
  "rand_core 0.6.0",
+]
+
+[[package]]
+name = "rand_jitter"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a404fd88e0f817fc1c3351b9ba2207ffa65038cdde464405308a5f5d254835fe"
+dependencies = [
+ "libc",
+ "rand_core 0.5.1",
+ "winapi",
+]
+
+[[package]]
+name = "rdrand"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fd1906cddd9702301a60db95e6e752f74028866c4dea818267709be31747b360"
+dependencies = [
+ "rand_core 0.5.1",
 ]
 
 [[package]]

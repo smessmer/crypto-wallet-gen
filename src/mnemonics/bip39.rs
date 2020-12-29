@@ -1,30 +1,28 @@
 use anyhow::Result;
 use bip39::{Language, Mnemonic as _Mnemonic, Seed as _Seed};
-use rand::{rngs::OsRng, thread_rng, RngCore};
+use rand::RngCore;
 
 use super::Mnemonic;
 use crate::hd_seed::HDSeed;
+use crate::random::secure_rng;
 use crate::seed::Seed;
 
 const LANG: Language = Language::English;
 
 pub struct Bip39Mnemonic {
+    // wagyu_bitcoin::mnemonic::BitcoinMnemonic::to_seed() is private, so we need to use the bip39 crate instead.
     mnemonic: _Mnemonic,
 }
 
 impl Mnemonic for Bip39Mnemonic {
-    fn generate() -> Self {
+    fn generate() -> Result<Self> {
         const ENTROPY_LENGTH: usize = 32;
         // XOR an OS rng and a pseudo rng to get our entropy. Probably not necessary but doesn't hurt either.
-        let mut prng_entropy: [u8; ENTROPY_LENGTH] = [0; ENTROPY_LENGTH];
-        thread_rng().fill_bytes(&mut prng_entropy);
+        let mut rng = secure_rng()?;
         let mut entropy: [u8; ENTROPY_LENGTH] = [0; ENTROPY_LENGTH];
-        OsRng.fill_bytes(&mut entropy);
-        for i in 0..ENTROPY_LENGTH {
-            entropy[i] ^= prng_entropy[i];
-        }
+        rng.fill_bytes(&mut entropy);
         let mnemonic = _Mnemonic::from_entropy(&entropy, LANG).expect("Invalid key length");
-        Self { mnemonic }
+        Ok(Self { mnemonic })
     }
 
     fn phrase(&self) -> &str {
@@ -156,7 +154,7 @@ mod tests {
 
     #[test]
     fn generated_phrase_is_24_words() {
-        let phrase = Bip39Mnemonic::generate().into_phrase();
+        let phrase = Bip39Mnemonic::generate().unwrap().into_phrase();
         assert_eq!(23, phrase.chars().filter(|a| *a == ' ').count());
     }
 }

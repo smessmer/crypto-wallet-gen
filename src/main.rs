@@ -92,7 +92,7 @@ fn main() -> Result<()> {
     let mnemonic = args
         .value_of("from-mnemonic")
         .map(Bip39Mnemonic::from_phrase)
-        .unwrap_or_else(|| Ok(Bip39Mnemonic::generate()))?;
+        .unwrap_or_else(|| Bip39Mnemonic::generate())?;
     let account_index: u32 = args
         .value_of("account-index")
         .expect("Can't fail because we specify a default value")
