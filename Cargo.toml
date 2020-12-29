@@ -25,3 +25,6 @@ tiny-bip39 = "^0.8.0"
 trompt = "^0.0.4"
 wagyu-model = "^0.6.3"
 wagyu-monero = "^0.6.3"
+
+[profile.release]
+lto = "fat"
