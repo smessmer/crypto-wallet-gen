@@ -86,7 +86,7 @@ The example from that site is one of the integration tests in this repository. A
 
 ### Scrypt derivation
 
-There is an optional `--scrypt` parameter that replaces the `PBKDF2` hash functino of [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) with scrypt.
+There is an optional `--scrypt` parameter that replaces the [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2) hash function of [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) with [scrypt](https://en.wikipedia.org/wiki/Scrypt).
 This has three effects:
 
 1. Somebody knowing your mnemonic but not the password who is trying to brute force the password will have a significantly harder time.
