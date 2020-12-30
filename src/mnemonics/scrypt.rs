@@ -50,9 +50,9 @@ impl Mnemonic for ScryptMnemonic {
 }
 
 fn kdf(password: &[u8], salt: &[u8]) -> Result<Vec<u8>> {
-    // Using parameters proposed in BIP38
-    // (note log2(N) == 14 means N == 16384)
-    let scrypt_params = ScryptParams::new(14, 8, 8).expect("Invalid hardcoded scrypt params");
+    // Using parameters that are higher than the ones proposed in BIP38
+    // (note log2(N) == 21 means N == 2097152)
+    let scrypt_params = ScryptParams::new(21, 8, 8).expect("Invalid hardcoded scrypt params");
     const OUTPUT_BYTES: usize = 64;
     let mut seed = vec![0u8; OUTPUT_BYTES];
     scrypt(password, salt, &scrypt_params, &mut seed)?;
@@ -84,7 +84,7 @@ mod tests {
         // our own algorithm and is more a regression test to make sure we don't accidentally
         // change the algorithm.
         expect_generated_key_is(
-            "xprv9s21ZrQH143K3J7pMib2p2S7y7UeZtcztzJxWNFTPNd2E8Q4Z4uCfme3zvy8Dzm4hNV1ie7utKmfMVYkS29QGJxqZVtZzBK7jLtmXttnsxF",
+            "xprv9s21ZrQH143K43yeDzy9ERFAT7BvsnetT7Z45fgWycciwUYrkarQrH9BheSZBp9pW24DT3XAnwTWHVZPc5KmejWrqnEpnMp5pK2HX4GZFwg",
             "lunch blanket cruise chair question good market allow blue celery little void",
             "",
         );
@@ -96,7 +96,7 @@ mod tests {
         // our own algorithm and is more a regression test to make sure we don't accidentally
         // change the algorithm.
         expect_generated_key_is(
-            "xprv9s21ZrQH143K2uBmVRhkXdaBmCoLSXnFCs8qudvDZjdJHdJUQZCqmJ9etAhVAyibkApgHFXgZStauDvkUM4ascX2xQGMh2EfvPTP9czhqf9",
+            "xprv9s21ZrQH143K2hGy14dk1o5oSEvcGqvD6UTVXwXKQjFTH688RpFVrkpFx34Kbn7CLFXPkthL59TfGAs5RZepXyB1TSK4n85rjaxoeH22krV",
             "lunch blanket cruise chair question good market allow blue celery little void",
             "my password",
         );
@@ -108,7 +108,7 @@ mod tests {
         // our own algorithm and is more a regression test to make sure we don't accidentally
         // change the algorithm.
         expect_generated_key_is(
-            "xprv9s21ZrQH143K2vEMFXiGpezMvvyxiYoEWnWjsvm1ty5M8w7BzX3wa3wzmtF3udu6md4K9dU8xcygMeT7Ay9sYJSWEceBZ6zdZzZFCkPaodB",
+            "xprv9s21ZrQH143K2nJNnAc8Pipt7rcXfPPtsH44wZghrhZK2X6j66JFR6zJcRhhbZsPdqQiMDuhsUqheQYxoCyJnZnCbDJ8YXHnqnykpiuD9LL",
             "mirror distance build unaware current concert link chapter resemble tuition main rent echo drum dolphin",
             "");
     }
@@ -119,7 +119,7 @@ mod tests {
         // our own algorithm and is more a regression test to make sure we don't accidentally
         // change the algorithm.
         expect_generated_key_is(
-            "xprv9s21ZrQH143K29GuP4S6Zf3MZjHnXTB13Qo5Z6jEwj7oAJaRV9S3f3FdK7pVRpgAdi1cEpT9sNwsxYLwUKMGcqEh2LZGuksz1cozfrPUTRz",
+            "xprv9s21ZrQH143K42m6cRxBUT3Yij6vVdPKo5JPxStd3SLFEBD5e2xDv9M1mox6EKPFyfKpJFdtsPCN1Rt3SfrhFBfGSnDzxHQRje9RdPK29Ue",
             "mirror distance build unaware current concert link chapter resemble tuition main rent echo drum dolphin",
             "my password");
     }
@@ -130,7 +130,7 @@ mod tests {
         // our own algorithm and is more a regression test to make sure we don't accidentally
         // change the algorithm.
         expect_generated_key_is(
-            "xprv9s21ZrQH143K4D54Us4Sfi3fkPJLCoEP9swC1nqeGKywPmhZnfdbt1YZrCiFZxBdqM6GdScvk1cT7eyrpguWP8rxQ2rC1XRZ5XtHbfkRSB9",
+            "xprv9s21ZrQH143K3chwjAuMLiKUQf4SdtgYzb47X64rGH86AEQZoyFk9uyEhtN8LD7SpFQcGAro9SuvTyMRASGaiL4qDBDyvUUw9upmvFqdZaK",
             "blush section drift canoe reform friend rose cherry assume supreme home hub goat arena jazz absurd emotion hidden",
             "");
     }
@@ -141,7 +141,7 @@ mod tests {
         // our own algorithm and is more a regression test to make sure we don't accidentally
         // change the algorithm.
         expect_generated_key_is(
-            "xprv9s21ZrQH143K2wAnUzRhbkrk6UaqXPSkabnVJ6fbkFUbXrX5TF2nreDJFQJ17AnbqPzo4QBitM1bY3mrwJGvP7crWjoN2CnRnEVCqmr6i4d",
+            "xprv9s21ZrQH143K3uAtjMM2GJNP3SLef2tNCXRkYZWsUh7biyvCvmcHTWvpKoV1PJPcr1RRabFGYTQLu6WQqTV4vc7dhhZEkdUP4LGzYveCZ1r",
             "blush section drift canoe reform friend rose cherry assume supreme home hub goat arena jazz absurd emotion hidden",
             "my password");
     }
@@ -152,7 +152,7 @@ mod tests {
         // our own algorithm and is more a regression test to make sure we don't accidentally
         // change the algorithm.
         expect_generated_key_is(
-            "xprv9s21ZrQH143K45kY6cgVNyydTFxsgJSUMTPfgb9HZWi16G4qL37ExxjQH7qZH3UHVCbT1Q54muYDoMrdoAgwG9j4anFcEYmifvLBBY4fz1W",
+            "xprv9s21ZrQH143K2SuSTDXTTspsstHYeUuhifsLeuXSMnd6LUYy9ogKumvJYNPsWYXwVMHAfK5rd143UV2KQn9kJQ6bhgiyXrux7AAP6nBK8H8",
             "include disagree sentence junior gospel engage whip old boost scrap someone helmet list best afraid favorite gold antenna before peasant buffalo",
             "");
     }
@@ -163,7 +163,7 @@ mod tests {
         // our own algorithm and is more a regression test to make sure we don't accidentally
         // change the algorithm.
         expect_generated_key_is(
-            "xprv9s21ZrQH143K2Rp3kxxRvT2tTpaLzYyZWuULixPh4VnRjoDEXwwPYKNdHYzUsnxgwoi2H1u1JahpaXKL5f9vQTYJ4jr8qVT9wKgwiwRnoME",
+            "xprv9s21ZrQH143K2iBfhzqqbUstbgAkvTizaRCL2KrUUUEZTL5bt2VBry9R8s8Ru29NGTYftwfKSY56623jXiQ2TygvcUA35ntm62q6GFKjvGe",
             "include disagree sentence junior gospel engage whip old boost scrap someone helmet list best afraid favorite gold antenna before peasant buffalo",
             "my password");
     }
@@ -174,7 +174,7 @@ mod tests {
         // our own algorithm and is more a regression test to make sure we don't accidentally
         // change the algorithm.
         expect_generated_key_is(
-            "xprv9s21ZrQH143K41URuZrC5bfU2kbMrAgVW1VQktsxoDUUg16m6R8pExSzNW7XHhmr7QwWn8M5x5BYcfyumkCPTM4Nuwqz5wwXRQF6YYiF8d7",
+            "xprv9s21ZrQH143K2VmVFn8LU6ZgJEEBwPTSsYrv91gTJhvMo7yDPwhDxifS14FK6JqVPtKiiYPyJpUjHN3XqyGRZaBELfERRBt9PXbL3VvsXsU",
             "table car outdoor twist dutch auction monitor rude pumpkin very disease ability hope area metal brisk luggage tell ribbon profit various lake topic exist",
             "");
     }
@@ -185,7 +185,7 @@ mod tests {
         // our own algorithm and is more a regression test to make sure we don't accidentally
         // change the algorithm.
         expect_generated_key_is(
-            "xprv9s21ZrQH143K436egABGFTdjxMPa4fEgAYvrT3LcsK8zvSGEr1jC4v8egWNeiJdqrr8TcHAbWdUrMQY81wiHWJeoxECfSQaEh3RUhhSHZLR",
+            "xprv9s21ZrQH143K2kzr4K5S2nc2Kg7n5wnNG2kbTpdrLpu1fhFCwrcp8SRJKbcSzBMa7p6bfyzsy3b1EeY6HNpu78xbdCQY4Yj3t3f2doXbSw1",
             "table car outdoor twist dutch auction monitor rude pumpkin very disease ability hope area metal brisk luggage tell ribbon profit various lake topic exist",
             "my password");
     }
