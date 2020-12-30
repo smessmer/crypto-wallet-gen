@@ -9,7 +9,7 @@ use crypto_wallet_gen::{
     MnemonicFactory, MoneroWallet, ScryptMnemonic, Wallet,
 };
 
-// TODO This is only needed because trompt::Error doesn't implement std::error::TromptError. We should upstream a fix instead.
+// TODO This is only needed because trompt::Error doesn't implement std::error::TromptError. https://gitlab.com/runarberg/trompt/-/issues/4
 #[derive(Debug, Error)]
 pub enum TromptValidationError {
     #[error("absent")]

@@ -128,6 +128,4 @@ mod tests {
             child_key.to_base58(),
         );
     }
-
-    // TODO Tests for XMR
 }

@@ -8,6 +8,7 @@ use crate::bip32::HDPrivKey;
 use crate::seed::Seed;
 
 /// A mnemonic similar to BIP39, but using scrypt instead of PBKDF2 for the key derivation.
+#[derive(Debug)]
 pub struct ScryptMnemonic {
     phrase: String,
 }
@@ -69,9 +70,6 @@ fn scrypt_params() -> ScryptParams {
     // (note log2(N) == 21 means N == 2097152)
     ScryptParams::new(21, 8, 8).expect("Invalid hardcoded scrypt params")
 }
-
-// TODO Test validate
-// TODO Test that from_phrase rejects invalid phrases
 
 #[cfg(test)]
 mod tests {
@@ -204,5 +202,78 @@ mod tests {
     fn generated_phrase_is_24_words() {
         let phrase = ScryptMnemonic::generate().unwrap().into_phrase();
         assert_eq!(23, phrase.chars().filter(|a| *a == ' ').count());
+    }
+
+    #[test]
+    fn generated_phrase_is_valid() {
+        ScryptMnemonic::validate(ScryptMnemonic::generate().unwrap().phrase()).unwrap();
+    }
+
+    #[test]
+    fn validate_valid_24word_phrase() {
+        ScryptMnemonic::validate("desert armed renew matrix congress order remove lab travel shallow there tool symbol three radio exhibit pledge alcohol quit host rare noble dose eager").unwrap();
+    }
+
+    #[test]
+    fn validate_valid_21word_phrase() {
+        ScryptMnemonic::validate("morning mind present cloud boat phrase task uniform effort couple carpet wise steak eyebrow friend birth million photo tobacco firm hobby").unwrap();
+    }
+
+    #[test]
+    fn validate_valid_18word_phrase() {
+        ScryptMnemonic::validate("slice lift violin movie shield copy tail arrow idle lift knock fossil leave lawsuit tennis sight travel vivid").unwrap();
+    }
+
+    #[test]
+    fn validate_valid_15word_phrase() {
+        ScryptMnemonic::validate("call oval opinion exhibit limit write fine prepare sleep possible extend language split kidney desert").unwrap();
+    }
+
+    #[test]
+    fn validate_valid_12word_phrase() {
+        ScryptMnemonic::validate(
+            "tornado ginger error because arrange lake scale unfold palm theme frozen sick",
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn validate_invalid_20word_phrase() {
+        let err = ScryptMnemonic::validate(
+            "morning mind present cloud boat phrase task uniform effort couple carpet wise steak eyebrow friend birth million photo tobacco firm",
+        )
+        .unwrap_err();
+        assert!(err
+            .to_string()
+            .contains("invalid number of words in phrase"))
+    }
+
+    #[test]
+    fn validate_invalid_21word_phrase() {
+        let err = ScryptMnemonic::validate(
+            "morning mind present cloud boat phrase task uniform effort couple carpet wise steak eyebrow friend birth million photo tobacco firm prepare",
+        )
+        .unwrap_err();
+        assert!(err.to_string().contains("invalid checksum"))
+    }
+
+    #[test]
+    fn from_invalid_20word_phrase() {
+        let err = ScryptMnemonic::from_phrase(
+            "morning mind present cloud boat phrase task uniform effort couple carpet wise steak eyebrow friend birth million photo tobacco firm",
+        )
+        .unwrap_err();
+        assert!(err
+            .to_string()
+            .contains("invalid number of words in phrase"))
+    }
+
+    #[test]
+    fn from_invalid_21word_phrase() {
+        let err = ScryptMnemonic::from_phrase(
+            "morning mind present cloud boat phrase task uniform effort couple carpet wise steak eyebrow friend birth million photo tobacco firm prepare",
+        )
+        .unwrap_err();
+        assert!(err.to_string().contains("invalid checksum"))
     }
 }

@@ -9,6 +9,7 @@ use crate::seed::Seed;
 
 const LANG: Language = Language::English;
 
+#[derive(Debug)]
 pub struct Bip39Mnemonic {
     // wagyu_bitcoin::mnemonic::BitcoinMnemonic::to_seed() is private, so we need to use the bip39 crate instead.
     mnemonic: _Mnemonic,
@@ -49,9 +50,6 @@ impl Mnemonic for Bip39Mnemonic {
         HDPrivKey::new(seed)
     }
 }
-
-// TODO Test validate
-// TODO Test that from_phrase rejects invalid phrases
 
 #[cfg(test)]
 mod tests {
@@ -162,5 +160,78 @@ mod tests {
     fn generated_phrase_is_24_words() {
         let phrase = Bip39Mnemonic::generate().unwrap().into_phrase();
         assert_eq!(23, phrase.chars().filter(|a| *a == ' ').count());
+    }
+
+    #[test]
+    fn generated_phrase_is_valid() {
+        Bip39Mnemonic::validate(Bip39Mnemonic::generate().unwrap().phrase()).unwrap();
+    }
+
+    #[test]
+    fn validate_valid_24word_phrase() {
+        Bip39Mnemonic::validate("desert armed renew matrix congress order remove lab travel shallow there tool symbol three radio exhibit pledge alcohol quit host rare noble dose eager").unwrap();
+    }
+
+    #[test]
+    fn validate_valid_21word_phrase() {
+        Bip39Mnemonic::validate("morning mind present cloud boat phrase task uniform effort couple carpet wise steak eyebrow friend birth million photo tobacco firm hobby").unwrap();
+    }
+
+    #[test]
+    fn validate_valid_18word_phrase() {
+        Bip39Mnemonic::validate("slice lift violin movie shield copy tail arrow idle lift knock fossil leave lawsuit tennis sight travel vivid").unwrap();
+    }
+
+    #[test]
+    fn validate_valid_15word_phrase() {
+        Bip39Mnemonic::validate("call oval opinion exhibit limit write fine prepare sleep possible extend language split kidney desert").unwrap();
+    }
+
+    #[test]
+    fn validate_valid_12word_phrase() {
+        Bip39Mnemonic::validate(
+            "tornado ginger error because arrange lake scale unfold palm theme frozen sick",
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn validate_invalid_20word_phrase() {
+        let err = Bip39Mnemonic::validate(
+            "morning mind present cloud boat phrase task uniform effort couple carpet wise steak eyebrow friend birth million photo tobacco firm",
+        )
+        .unwrap_err();
+        assert!(err
+            .to_string()
+            .contains("invalid number of words in phrase"))
+    }
+
+    #[test]
+    fn validate_invalid_21word_phrase() {
+        let err = Bip39Mnemonic::validate(
+            "morning mind present cloud boat phrase task uniform effort couple carpet wise steak eyebrow friend birth million photo tobacco firm prepare",
+        )
+        .unwrap_err();
+        assert!(err.to_string().contains("invalid checksum"))
+    }
+
+    #[test]
+    fn from_invalid_20word_phrase() {
+        let err = Bip39Mnemonic::from_phrase(
+            "morning mind present cloud boat phrase task uniform effort couple carpet wise steak eyebrow friend birth million photo tobacco firm",
+        )
+        .unwrap_err();
+        assert!(err
+            .to_string()
+            .contains("invalid number of words in phrase"))
+    }
+
+    #[test]
+    fn from_invalid_21word_phrase() {
+        let err = Bip39Mnemonic::from_phrase(
+            "morning mind present cloud boat phrase task uniform effort couple carpet wise steak eyebrow friend birth million photo tobacco firm prepare",
+        )
+        .unwrap_err();
+        assert!(err.to_string().contains("invalid checksum"))
     }
 }
