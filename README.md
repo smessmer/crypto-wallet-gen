@@ -5,7 +5,7 @@
 This is a utility to generate seed phrases and to generate crypto currency wallets from a seed phrase.
 This way, you only need to remember one seed phrase and can generate wallets from it for multiple currencies.
 A password can be added in the generation step so that you need both the seed phrase and the password to generate the wallets and access your funds.
-We support both [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) and [scrypt](https://en.wikipedia.org/wiki/Scrypt) for generating the keys from the mnemonic (see details further below) and use [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)/[BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) for derivation. Keys can be derived for Bitcoin (BTC) and Monero (XMR) HD wallets at the moment, further coins could be added relatively easily.
+We support both [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) and [scrypt](https://en.wikipedia.org/wiki/Scrypt) for generating the keys from the mnemonic (see details further below) and use [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)/[BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) for derivation. Keys can be derived for Bitcoin (BTC) and Monero (XMR) wallets at the moment, further coins could be added relatively easily.
 
 Generating a wallet from a seed phrase is a good way to secure your funds. You can, for example, print out the seed phrase (or etch it into metal cards for extra durability)
 and store it offline. With this seed phrase (and the chosen password, if any), you can always restore access to your funds if the hard drive with your
@@ -19,9 +19,9 @@ crypto money happens to die. Or you carry it with you to get access on your fund
 $ crypto-wallet-gen -c BTC
 Password: 
 Repeat Password:
-Mnemonic: border visit cupboard great address trumpet cash either castle rubber tape foil combine mix width burst crunch broccoli family resist fish build develop when
+Mnemonic: acid employ suggest menu desert pioneer hard salmon consider stuff margin over bus fiction direct useful tornado output forward wing cute chicken ladder hockey
 Password: [omitted]
-WIF: KyFcTdhE77i1WLE6SsxiPkPSfst1w49t8PhveEWPu1zdjJmQ5V9t
+Private Key: xprv9yUdDyYgknA92Cb4xfsqSXxQzGtELBm1kvXVvmp5MpW3UwjevPGEX29pjR9MAL13UTE1ZDfCwZ7Y3Uwpqv5BGP4cvdkS6DSTbvdYK7RicHk
 ```
 
 The "mnemonic" is the seed phrase you need to remember or print.
@@ -30,14 +30,14 @@ The WIF can be entered to import the bitcoin wallet in your favourite bitcoin cl
 #### 2. Generate a Monero wallet with the same seed phrase
 
 ```
-$ crypto-wallet-gen -c XMR --from-mnemonic "border visit cupboard great address trumpet cash either castle rubber tape foil combine mix width burst crunch broccoli family resist fish build develop when"
+$ crypto-wallet-gen -c XMR --from-mnemonic "acid employ suggest menu desert pioneer hard salmon consider stuff margin over bus fiction direct useful tornado output forward wing cute chicken ladder hockey"
 Password: 
 Repeat Password: 
 Mnemonic: border visit cupboard great address trumpet cash either castle rubber tape foil combine mix width burst crunch broccoli family resist fish build develop when
 Password: [omitted]
-Address: 43pFzcvF5SVWrcvSb3t6d85ZWfD2BW4oyGj1dmzR63JSHvzRnfhNKUdBJQxmFD8JCWNRBRJuH9p3LbrYiuq3CDnkTCWWvW7
-Private Spend Key: a39ed91d4bd30080cc4e4a9e8a8ca6be3d7eb92648f7ee211fae8c2335440009
-Private View Key: c654cd31f28a12a711b17a6b286c92ae7ab574c2992935a56aa5ac40bf3cff0d
+Address: 4295Lfg8n2pJiN5eC6YHMGGR4oZ1PuaGJNyNo24wNjrdNPLBSVFFHVEay83fFwJBCWPVumE8xW6wKB6Udj8ttmZoNLDTgsn
+Private View Key: c2e6e8597bb5050e57a98d284faf27edc3587d57cccd8a2b3edfd38cdd23af0b
+Private Spend Key: 4d93d393f0f2c4a9837524f9d740fa85af54c464864aa8c16d39ef3409781802
 ```
 
 That's it. The address, private spend key and private view key can be used to import the wallet into the Monero client.
@@ -45,12 +45,12 @@ That's it. The address, private spend key and private view key can be used to im
 Now say you loose access to your Bitcoin or Monero wallet, using the phrase and step 2 above, you can always recover the Monero wallet again, and similarly you can recover your bitcoin wallet:
 
 ```
-$ crypto-wallet-gen -c BTC --from-mnemonic "border visit cupboard great address trumpet cash either castle rubber tape foil combine mix width burst crunch broccoli family resist fish build develop when"
+$ crypto-wallet-gen -c BTC --from-mnemonic "acid employ suggest menu desert pioneer hard salmon consider stuff margin over bus fiction direct useful tornado output forward wing cute chicken ladder hockey"
 Password: 
 Repeat Password: 
 Mnemonic: border visit cupboard great address trumpet cash either castle rubber tape foil combine mix width burst crunch broccoli family resist fish build develop when
 Password: [omitted]
-WIF: KyFcTdhE77i1WLE6SsxiPkPSfst1w49t8PhveEWPu1zdjJmQ5V9t
+Private Key: xprv9yUdDyYgknA92Cb4xfsqSXxQzGtELBm1kvXVvmp5MpW3UwjevPGEX29pjR9MAL13UTE1ZDfCwZ7Y3Uwpqv5BGP4cvdkS6DSTbvdYK7RicHk
 ```
 
 ## Installation
