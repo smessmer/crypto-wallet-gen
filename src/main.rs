@@ -103,13 +103,13 @@ fn main() -> Result<()> {
         Box::new(
             mnemonic
                 .map(|m| ScryptMnemonic::from_phrase(m))
-                .unwrap_or_else(|| ScryptMnemonic::generate())?,
+                .unwrap_or_else(ScryptMnemonic::generate)?,
         )
     } else {
         Box::new(
             mnemonic
                 .map(|m| Bip39Mnemonic::from_phrase(m))
-                .unwrap_or_else(|| Bip39Mnemonic::generate())?,
+                .unwrap_or_else(Bip39Mnemonic::generate)?,
         )
     };
     let account_index: u32 = args
