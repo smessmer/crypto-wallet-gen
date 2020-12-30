@@ -5,45 +5,8 @@ use clap::arg_enum;
 use secp256k1::Secp256k1;
 use std::convert::TryFrom;
 use std::convert::TryInto;
-use thiserror::Error;
 
 use crate::seed::Seed;
-
-// TODO Secp256k1Error is only needed because libsecp256k1::Error in version 0.2 doesn't implement std::error::Error yet. It does in a newer version, but tiny_hderive locks us to 0.2.
-#[derive(Error, Debug)]
-pub enum Secp256k1Error {
-    #[error("Invalid signature")]
-    InvalidSignature,
-    #[error("Invalid public key")]
-    InvalidPublicKey,
-    #[error("Invalid secret key")]
-    InvalidSecretKey,
-    #[error("Invalid recovery id")]
-    InvalidRecoveryId,
-    #[error("Invalid message")]
-    InvalidMessage,
-    #[error("Incorrect signature")]
-    IncorrectSignature,
-    #[error("Invalid tweak")]
-    InvalidTweak,
-    #[error("Not enough memory")]
-    NotEnoughMemory,
-}
-
-impl From<secp256k1::Error> for Secp256k1Error {
-    fn from(err: secp256k1::Error) -> Secp256k1Error {
-        match err {
-            secp256k1::Error::InvalidSignature => Secp256k1Error::InvalidSignature,
-            secp256k1::Error::InvalidPublicKey => Secp256k1Error::InvalidPublicKey,
-            secp256k1::Error::InvalidSecretKey => Secp256k1Error::InvalidSecretKey,
-            secp256k1::Error::InvalidRecoveryId => Secp256k1Error::InvalidRecoveryId,
-            secp256k1::Error::InvalidMessage => Secp256k1Error::InvalidMessage,
-            secp256k1::Error::IncorrectSignature => Secp256k1Error::IncorrectSignature,
-            secp256k1::Error::InvalidTweak => Secp256k1Error::InvalidTweak,
-            secp256k1::Error::NotEnoughMemory => Secp256k1Error::NotEnoughMemory,
-        }
-    }
-}
 
 arg_enum! {
     #[derive(Debug, Clone, Copy)]
