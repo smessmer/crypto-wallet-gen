@@ -77,9 +77,9 @@ $ cargo install --path .
 
 ## How keys are derived
 
-This tool uses [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) + [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) + [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) derivation from your seed phrase and password and the derivation path `m/44'/{coin}'/{address}'/0/0`.
-That is, for bitcoin with address `0` (which is the default) we use `m/44'/0'/0'/0/0` and for monero `m/44'/128'/0'/0/0`.
-For bitcoin, the derived key can be directly used as a bitcoin wallet.
-For monero, we follow the algorithm described [here](https://github.com/libbitcoin/libbitcoin-system/wiki/Altcoin-Version-Mappings#10-monero-xmr-bip-3944-technology-examples).
+This tool uses [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) for the mnemonic and [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)/[BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) derivation from your seed phrase and password with the derivation path `m/44'/{coin}'/{address}'`.
+That is, for bitcoin with address `0` (which is the default) we use `m/44'/0'/0'` and for monero `m/44'/128'/0'`.
+For bitcoin, the derived key can be directly used as a bitcoin wallet. If such a key is imported into a bitcoin client like electrum, electrum derives `m/{change}/{index}` from the key it is given, so the full derivation path will match the BIP44 scheme of `m/44'/{coin}'/{address}'/{change}/{index}`.
+For monero, we follow the algorithm described [here](https://github.com/libbitcoin/libbitcoin-system/wiki/Altcoin-Version-Mappings#10-monero-xmr-bip-3944-technology-examples), which means we interpret the private key part of the derived BIP32 extended key as a monero private key.
 
 The example from that site is one of the integration tests in this repository. Also some examples generated at https://iancoleman.io/bip39/ .
