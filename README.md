@@ -33,7 +33,7 @@ The WIF can be entered to import the bitcoin wallet in your favourite bitcoin cl
 $ crypto-wallet-gen -c XMR --from-mnemonic "acid employ suggest menu desert pioneer hard salmon consider stuff margin over bus fiction direct useful tornado output forward wing cute chicken ladder hockey"
 Password: 
 Repeat Password: 
-Mnemonic: border visit cupboard great address trumpet cash either castle rubber tape foil combine mix width burst crunch broccoli family resist fish build develop when
+Mnemonic: acid employ suggest menu desert pioneer hard salmon consider stuff margin over bus fiction direct useful tornado output forward wing cute chicken ladder hockey
 Password: [omitted]
 Address: 4295Lfg8n2pJiN5eC6YHMGGR4oZ1PuaGJNyNo24wNjrdNPLBSVFFHVEay83fFwJBCWPVumE8xW6wKB6Udj8ttmZoNLDTgsn
 Private View Key: c2e6e8597bb5050e57a98d284faf27edc3587d57cccd8a2b3edfd38cdd23af0b
@@ -48,7 +48,7 @@ Now say you loose access to your Bitcoin or Monero wallet, using the phrase and 
 $ crypto-wallet-gen -c BTC --from-mnemonic "acid employ suggest menu desert pioneer hard salmon consider stuff margin over bus fiction direct useful tornado output forward wing cute chicken ladder hockey"
 Password: 
 Repeat Password: 
-Mnemonic: border visit cupboard great address trumpet cash either castle rubber tape foil combine mix width burst crunch broccoli family resist fish build develop when
+Mnemonic: acid employ suggest menu desert pioneer hard salmon consider stuff margin over bus fiction direct useful tornado output forward wing cute chicken ladder hockey
 Password: [omitted]
 Private Key: xprv9yUdDyYgknA92Cb4xfsqSXxQzGtELBm1kvXVvmp5MpW3UwjevPGEX29pjR9MAL13UTE1ZDfCwZ7Y3Uwpqv5BGP4cvdkS6DSTbvdYK7RicHk
 ```
