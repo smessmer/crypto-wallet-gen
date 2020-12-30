@@ -1,20 +1,20 @@
 use anyhow::Result;
-use bitcoin::util::bip32::ExtendedPrivKey;
 
 use super::Wallet;
+use crate::bip32::HDPrivKey;
 
 pub struct BitcoinWallet {
-    private_key: ExtendedPrivKey,
+    private_key: HDPrivKey,
 }
 
 impl BitcoinWallet {
     pub fn private_key(&self) -> String {
-        format!("{}", self.private_key)
+        self.private_key.to_base58()
     }
 }
 
 impl Wallet for BitcoinWallet {
-    fn from_extended_key(private_key: ExtendedPrivKey) -> Result<Self> {
+    fn from_hd_key(private_key: HDPrivKey) -> Result<Self> {
         Ok(Self { private_key })
     }
 }

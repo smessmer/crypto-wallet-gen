@@ -83,3 +83,12 @@ For bitcoin, the derived key can be directly used as a bitcoin wallet. If such a
 For monero, we follow the algorithm described [here](https://github.com/libbitcoin/libbitcoin-system/wiki/Altcoin-Version-Mappings#10-monero-xmr-bip-3944-technology-examples), which means we interpret the private key part of the derived BIP32 extended key as a monero private key.
 
 The example from that site is one of the integration tests in this repository. Also some examples generated at https://iancoleman.io/bip39/ .
+
+### Scrypt derivation
+
+There is an optional `--scrypt` parameter that replaces the `PBKDF2` hash functino of [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) with scrypt.
+This has three effects:
+
+1. Somebody knowing your mnemonic but not the password who is trying to brute force the password will have a significantly harder time.
+2. Generating a key from your mnemonic isn't instant anymore, it now takes several seconds (or minutes, depending on your hardware).
+3. You're leaving BIP standards territory, there is no BIP standard for this. You cannot switch to a different tool and will be dependent on having this tool available when you want to generate keys from your mnemonic. Better keep a copy of the source code around just to be safe.

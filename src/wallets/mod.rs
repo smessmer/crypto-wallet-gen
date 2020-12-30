@@ -1,9 +1,9 @@
-use ::bitcoin::util::bip32::ExtendedPrivKey;
+use crate::bip32::HDPrivKey;
 use anyhow::Result;
 
 pub mod bitcoin;
 pub mod monero;
 
 pub trait Wallet: Sized {
-    fn from_extended_key(private_key: ExtendedPrivKey) -> Result<Self>;
+    fn from_hd_key(private_key: HDPrivKey) -> Result<Self>;
 }

@@ -59,24 +59,31 @@ impl TryFrom<Bip44DerivationPath> for bitcoin::util::bip32::DerivationPath {
     }
 }
 
-pub struct HDSeed {
-    master_seed: Seed,
+pub struct HDPrivKey {
+    ext_key: ExtendedPrivKey,
 }
 
-impl HDSeed {
-    pub fn new(master_seed: Seed) -> Self {
-        Self { master_seed }
+impl HDPrivKey {
+    pub fn new(master_seed: Seed) -> Result<Self> {
+        Ok(Self {
+            ext_key: ExtendedPrivKey::new_master(Network::Bitcoin, master_seed.to_bytes())?,
+        })
     }
 
-    pub fn master_seed(&self) -> &Seed {
-        &self.master_seed
-    }
-
-    pub fn derive(&self, path: Bip44DerivationPath) -> Result<ExtendedPrivKey> {
-        let ext = ExtendedPrivKey::new_master(Network::Bitcoin, self.master_seed.to_bytes())?;
+    pub fn derive(&self, path: Bip44DerivationPath) -> Result<HDPrivKey> {
         let secp256k1 = Secp256k1::new();
         let path: bitcoin::util::bip32::DerivationPath = path.try_into()?;
-        Ok(ext.derive_priv(&secp256k1, &path)?)
+        Ok(HDPrivKey {
+            ext_key: self.ext_key.derive_priv(&secp256k1, &path)?,
+        })
+    }
+
+    pub fn key_part(&self) -> Seed {
+        Seed::from_bytes(self.ext_key.private_key.to_bytes())
+    }
+
+    pub fn to_base58(&self) -> String {
+        format!("{}", self.ext_key)
     }
 }
 
@@ -88,7 +95,8 @@ mod tests {
     fn test_account0() {
         // Generated with https://iancoleman.io/bip39/
         let master_seed = hex::decode("04c3fca05109eb0d188971e66ba949a4a4547b6c0eceddcb3e796e6ddb7d489826901932dbab5d6aa71421de1d119b4d472a92702e2642b2d9259d4766d84284").unwrap();
-        let child_seed = HDSeed::new(Seed::from_bytes(master_seed))
+        let child_key = HDPrivKey::new(Seed::from_bytes(master_seed))
+            .unwrap()
             .derive(Bip44DerivationPath {
                 coin_type: CoinType::BTC,
                 account: 0,
@@ -98,7 +106,7 @@ mod tests {
             .unwrap();
         assert_eq!(
             "xprvA1gz733iMcZ7hmAwuWdzw6suwn3ScGtpjGH7qzdFTKqtMvyRyBZ92n3fpvLahFnqXpA13NwPktkkCumeaRQpRg7iNkcvUoBu4T1eK4fhNDv",
-            format!("{}", child_seed),
+            child_key.to_base58(),
         );
     }
 
@@ -106,7 +114,8 @@ mod tests {
     fn test_account1() {
         // Generated with https://iancoleman.io/bip39/
         let master_seed = hex::decode("04c3fca05109eb0d188971e66ba949a4a4547b6c0eceddcb3e796e6ddb7d489826901932dbab5d6aa71421de1d119b4d472a92702e2642b2d9259d4766d84284").unwrap();
-        let child_seed = HDSeed::new(Seed::from_bytes(master_seed))
+        let child_key = HDPrivKey::new(Seed::from_bytes(master_seed))
+            .unwrap()
             .derive(Bip44DerivationPath {
                 coin_type: CoinType::BTC,
                 account: 1,
@@ -116,7 +125,7 @@ mod tests {
             .unwrap();
         assert_eq!(
             "xprvA2M4iy8qw2abD2MqssXJvtVU1p9AHHFPiqcSZzj28Gt1ZGwJ4oXLGQUK1R7JYQgtHA54t3yiKtSGgSVHwvxA1YJV7R7pbUefWa6u1E61rbS",
-            format!("{}", child_seed),
+            child_key.to_base58(),
         );
     }
 

@@ -1,11 +1,12 @@
 use anyhow::{ensure, Context, Result};
 use clap::{crate_version, value_t, App, Arg};
+use std::io::{self, Write};
 use thiserror::Error;
 use trompt::Trompt;
 
 use crypto_wallet_gen::{
-    Bip39Mnemonic, Bip44DerivationPath, BitcoinWallet, CoinType, ExtendedPrivKey, HDSeed, Mnemonic,
-    MoneroWallet, Wallet,
+    Bip39Mnemonic, Bip44DerivationPath, BitcoinWallet, CoinType, HDPrivKey, Mnemonic,
+    MnemonicFactory, MoneroWallet, ScryptMnemonic, Wallet,
 };
 
 // TODO This is only needed because trompt::Error doesn't implement std::error::TromptError. We should upstream a fix instead.
@@ -87,13 +88,30 @@ fn main() -> Result<()> {
                 .value_name("ACCOUNT INDEX")
                 .help("The account index used for BIP44 key derivation"),
         )
+        .arg(
+            Arg::with_name("scrypt")
+            .short("s")
+            .long("scrypt")
+            .help("Use scrypt instead of PBKDF2 in the BIP39 derivation. This makes keys harder to brute force, but it deviates from the BIP39 standard.")
+        )
         .get_matches();
 
     let coin_type = value_t!(args, "coin", CoinType).unwrap_or_else(|e| e.exit());
-    let mnemonic = args
-        .value_of("from-mnemonic")
-        .map(Bip39Mnemonic::from_phrase)
-        .unwrap_or_else(|| Bip39Mnemonic::generate())?;
+    let scrypt = args.is_present("scrypt");
+    let mnemonic = args.value_of("from-mnemonic");
+    let mnemonic: Box<dyn Mnemonic> = if scrypt {
+        Box::new(
+            mnemonic
+                .map(|m| ScryptMnemonic::from_phrase(m))
+                .unwrap_or_else(|| ScryptMnemonic::generate())?,
+        )
+    } else {
+        Box::new(
+            mnemonic
+                .map(|m| Bip39Mnemonic::from_phrase(m))
+                .unwrap_or_else(|| Bip39Mnemonic::generate())?,
+        )
+    };
     let account_index: u32 = args
         .value_of("account-index")
         .expect("Can't fail because we specify a default value")
@@ -109,11 +127,18 @@ fn main() -> Result<()> {
         .map_err(TromptError::from)?;
     ensure!(password1 == password2, "Passwords don't match");
 
-    let master_seed = mnemonic.to_seed(&password1);
-    let derived = derive_key(master_seed, coin_type, account_index)?;
+    if scrypt {
+        print!("Generating keys with scrypt. This can take a while...");
+        io::stdout().lock().flush().expect("Flushing stdout failed");
+    }
+    let master_key = mnemonic.to_private_key(&password1)?;
+    if scrypt {
+        println!("done");
+    }
+    let derived = derive_key(master_key, coin_type, account_index)?;
     match coin_type {
         CoinType::XMR => {
-            let wallet = MoneroWallet::from_extended_key(derived)?;
+            let wallet = MoneroWallet::from_hd_key(derived)?;
 
             println!(
                 "Mnemonic: {}\nPassword: [omitted]\nAddress: {}\nPrivate View Key: {}\nPrivate Spend Key: {}",
@@ -124,7 +149,7 @@ fn main() -> Result<()> {
             );
         }
         CoinType::BTC => {
-            let wallet = BitcoinWallet::from_extended_key(derived)?;
+            let wallet = BitcoinWallet::from_hd_key(derived)?;
 
             println!(
                 "Mnemonic: {}\nPassword: [omitted]\nPrivate Key: {}",
@@ -137,8 +162,8 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn derive_key(master_seed: HDSeed, coin_type: CoinType, account: u32) -> Result<ExtendedPrivKey> {
-    master_seed.derive(Bip44DerivationPath {
+fn derive_key(master_key: HDPrivKey, coin_type: CoinType, account: u32) -> Result<HDPrivKey> {
+    master_key.derive(Bip44DerivationPath {
         coin_type,
         account,
         // Don't derive change and address_index, this is up to the wallet software.
@@ -159,10 +184,13 @@ mod tests {
         // To test this, we generated a mnemonic at https://iancoleman.io/bip39/
         let mnemonic = "giggle load civil velvet legend drink letter symbol vivid tube parent plug accuse fault choose ahead bomb make novel potato enrich honey cable exchange";
         // We then use our tool to generate the private key
-        let master_seed = Bip39Mnemonic::from_phrase(mnemonic).unwrap().to_seed("");
+        let master_seed = Bip39Mnemonic::from_phrase(mnemonic)
+            .unwrap()
+            .to_private_key("")
+            .unwrap();
         assert_eq!(
             "xprv9zEiTz4LvP1k9brLSck5yX41EzVi3xbC2ZkPhWdyTqvJu3ovQCD6R8Z8RUoTwKkwpdqMne95zSrk9duV2SYhmmRkxvZAMsdqNHThKP8STbi",
-            format!("{}", derive_key(master_seed, CoinType::BTC, 0).unwrap())
+            derive_key(master_seed, CoinType::BTC, 0).unwrap().to_base58(),
         );
         // and loaded that key into electrum, checking that electrum generates the BIP44 addresses
         // listed on https://iancoleman.io/bip39/

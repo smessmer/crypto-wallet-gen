@@ -4,6 +4,7 @@
 - Remove tiny-hderive dependency
 - Be paranoid and xor together a couple different random generators instead of just using one. Likely an unnecessarily paranoid step but can't hurt either.
 - Output a private key for a bitcoin HD wallet instead of a single private key in WIF format.
+- Add --scrypt parameter to use scrypt instead of PBKDF2 in BIP39 key derivation.
 
 1.0.1
 ------
