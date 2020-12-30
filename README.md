@@ -5,7 +5,7 @@
 This is a utility to generate seed phrases and to generate crypto currency wallets from a seed phrase.
 This way, you only need to remember one seed phrase and can generate wallets from it for multiple currencies.
 A password can be added in the generation step so that you need both the seed phrase and the password to generate the wallets and access your funds.
-We support both [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) and [scrypt](https://en.wikipedia.org/wiki/Scrypt) for generating the keys from the mnemonic (see details further below) and use [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)/[BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) for derivation.
+We support both [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) and [scrypt](https://en.wikipedia.org/wiki/Scrypt) for generating the keys from the mnemonic (see details further below) and use [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)/[BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) for derivation. Keys can be derived for Bitcoin (BTC) and Monero (XMR) HD wallets at the moment, further coins could be added relatively easily.
 
 Generating a wallet from a seed phrase is a good way to secure your funds. You can, for example, print out the seed phrase (or etch it into metal cards for extra durability)
 and store it offline. With this seed phrase (and the chosen password, if any), you can always restore access to your funds if the hard drive with your
