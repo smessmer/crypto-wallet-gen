@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use bitcoin::util::bip32::ExtendedPrivKey;
 use failure::Fail;
 use wagyu_model::private_key::PrivateKey;
 use wagyu_monero::format::MoneroFormat;
@@ -13,6 +14,16 @@ pub struct MoneroWallet {
 }
 
 impl MoneroWallet {
+    pub fn from_seed(seed: &Seed) -> Result<Self> {
+        Ok(Self {
+            private_key: MoneroPrivateKey::from_seed(
+                &hex::encode(seed.to_bytes()),
+                &MoneroFormat::Standard,
+            )
+            .map_err(|err| err.compat())?,
+        })
+    }
+
     pub fn address(&self) -> Result<String> {
         Ok(format!(
             "{}",
@@ -41,14 +52,8 @@ impl MoneroWallet {
 }
 
 impl Wallet for MoneroWallet {
-    fn from_seed(seed: &Seed) -> Result<MoneroWallet> {
-        Ok(Self {
-            private_key: MoneroPrivateKey::from_seed(
-                &hex::encode(seed.to_bytes()),
-                &MoneroFormat::Standard,
-            )
-            .map_err(|err| err.compat())?,
-        })
+    fn from_extended_key(private_key: ExtendedPrivKey) -> Result<Self> {
+        Self::from_seed(&Seed::from_bytes(private_key.private_key.to_bytes()))
     }
 }
 

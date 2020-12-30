@@ -109,12 +109,11 @@ impl HDSeed {
         &self.master_seed
     }
 
-    pub fn derive(&self, path: Bip44DerivationPath) -> Result<Seed> {
+    pub fn derive(&self, path: Bip44DerivationPath) -> Result<ExtendedPrivKey> {
         let ext = ExtendedPrivKey::new_master(Network::Bitcoin, self.master_seed.to_bytes())?;
         let secp256k1 = Secp256k1::new();
         let path: bitcoin::util::bip32::DerivationPath = path.try_into()?;
-        let derived = ext.derive_priv(&secp256k1, &path)?;
-        Ok(Seed::from_bytes(derived.private_key.to_bytes()))
+        Ok(ext.derive_priv(&secp256k1, &path)?)
     }
 }
 
@@ -124,7 +123,7 @@ mod tests {
 
     #[test]
     fn test_account0() {
-        // Generated with https://iancoleman.io/bip39/ and using "bx hd-to-ec xprvA1gz733iMcZ7hmAwuWdzw6suwn3ScGtpjGH7qzdFTKqtMvyRyBZ92n3fpvLahFnqXpA13NwPktkkCumeaRQpRg7iNkcvUoBu4T1eK4fhNDv"
+        // Generated with https://iancoleman.io/bip39/
         let master_seed = hex::decode("04c3fca05109eb0d188971e66ba949a4a4547b6c0eceddcb3e796e6ddb7d489826901932dbab5d6aa71421de1d119b4d472a92702e2642b2d9259d4766d84284").unwrap();
         let child_seed = HDSeed::new(Seed::from_bytes(master_seed))
             .derive(Bip44DerivationPath {
@@ -135,14 +134,14 @@ mod tests {
             })
             .unwrap();
         assert_eq!(
-            "d2b621b864d8aa9ff26dc32346868ea13e63ed0185dee5954d5615fc2381c4a3",
-            hex::encode(child_seed.to_bytes())
+            "xprvA1gz733iMcZ7hmAwuWdzw6suwn3ScGtpjGH7qzdFTKqtMvyRyBZ92n3fpvLahFnqXpA13NwPktkkCumeaRQpRg7iNkcvUoBu4T1eK4fhNDv",
+            format!("{}", child_seed),
         );
     }
 
     #[test]
     fn test_account1() {
-        // Generated with https://iancoleman.io/bip39/ and using "bx hd-to-ec xprvA2M4iy8qw2abD2MqssXJvtVU1p9AHHFPiqcSZzj28Gt1ZGwJ4oXLGQUK1R7JYQgtHA54t3yiKtSGgSVHwvxA1YJV7R7pbUefWa6u1E61rbS"
+        // Generated with https://iancoleman.io/bip39/
         let master_seed = hex::decode("04c3fca05109eb0d188971e66ba949a4a4547b6c0eceddcb3e796e6ddb7d489826901932dbab5d6aa71421de1d119b4d472a92702e2642b2d9259d4766d84284").unwrap();
         let child_seed = HDSeed::new(Seed::from_bytes(master_seed))
             .derive(Bip44DerivationPath {
@@ -153,8 +152,8 @@ mod tests {
             })
             .unwrap();
         assert_eq!(
-            "f258d2fb41fe5af9295d8fffd5f4575a54314772fd812905ebb1e5f3554b7fc8",
-            hex::encode(child_seed.to_bytes())
+            "xprvA2M4iy8qw2abD2MqssXJvtVU1p9AHHFPiqcSZzj28Gt1ZGwJ4oXLGQUK1R7JYQgtHA54t3yiKtSGgSVHwvxA1YJV7R7pbUefWa6u1E61rbS",
+            format!("{}", child_seed),
         );
     }
 

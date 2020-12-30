@@ -4,7 +4,8 @@ use thiserror::Error;
 use trompt::Trompt;
 
 use crypto_wallet_gen::{
-    Bip39Mnemonic, Bip44DerivationPath, BitcoinWallet, CoinType, Mnemonic, MoneroWallet, Wallet,
+    Bip39Mnemonic, Bip44DerivationPath, BitcoinWallet, CoinType, ExtendedPrivKey, HDSeed, Mnemonic,
+    MoneroWallet, Wallet,
 };
 
 // TODO This is only needed because trompt::Error doesn't implement std::error::TromptError. We should upstream a fix instead.
@@ -109,15 +110,10 @@ fn main() -> Result<()> {
     ensure!(password1 == password2, "Passwords don't match");
 
     let master_seed = mnemonic.to_seed(&password1);
-    let derived = master_seed.derive(Bip44DerivationPath {
-        coin_type,
-        account: account_index,
-        change: Some(0),
-        address_index: Some(0),
-    })?;
+    let derived = derive_key(master_seed, coin_type, account_index)?;
     match coin_type {
         CoinType::XMR => {
-            let wallet = MoneroWallet::from_seed(&derived)?;
+            let wallet = MoneroWallet::from_extended_key(derived)?;
 
             println!(
                 "Mnemonic: {}\nPassword: [omitted]\nAddress: {}\nPrivate View Key: {}\nPrivate Spend Key: {}",
@@ -128,15 +124,49 @@ fn main() -> Result<()> {
             );
         }
         CoinType::BTC => {
-            let wallet = BitcoinWallet::from_seed(&derived)?;
+            let wallet = BitcoinWallet::from_extended_key(derived)?;
 
             println!(
-                "Mnemonic: {}\nPassword: [omitted]\nWIF: {}",
+                "Mnemonic: {}\nPassword: [omitted]\nPrivate Key: {}",
                 mnemonic.phrase(),
-                wallet.wif(),
+                wallet.private_key(),
             );
         }
     }
 
     Ok(())
+}
+
+fn derive_key(master_seed: HDSeed, coin_type: CoinType, account: u32) -> Result<ExtendedPrivKey> {
+    master_seed.derive(Bip44DerivationPath {
+        coin_type,
+        account,
+        // Don't derive change and address_index, this is up to the wallet software.
+        // Doing it this way means we can directly import our private key into electrum
+        // and it will match the BIP44 standard.
+        change: None,
+        address_index: None,
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_electrum_derivation_matches_bip44() {
+        // Test that when importing a derived key into electrum, electrum generates the correct BIP44 keys.
+        // To test this, we generated a mnemonic at https://iancoleman.io/bip39/
+        let mnemonic = "giggle load civil velvet legend drink letter symbol vivid tube parent plug accuse fault choose ahead bomb make novel potato enrich honey cable exchange";
+        // We then use our tool to generate the private key
+        let master_seed = Bip39Mnemonic::from_phrase(mnemonic).unwrap().to_seed("");
+        assert_eq!(
+            "xprv9zEiTz4LvP1k9brLSck5yX41EzVi3xbC2ZkPhWdyTqvJu3ovQCD6R8Z8RUoTwKkwpdqMne95zSrk9duV2SYhmmRkxvZAMsdqNHThKP8STbi",
+            format!("{}", derive_key(master_seed, CoinType::BTC, 0).unwrap())
+        );
+        // and loaded that key into electrum, checking that electrum generates the BIP44 addresses
+        // listed on https://iancoleman.io/bip39/
+        // So this test case is basically a test ensuring that we keep generating the same private key for which we already checked
+        // what electrum generates from it and don't start differring from it.
+    }
 }

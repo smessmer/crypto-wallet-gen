@@ -8,3 +8,5 @@ pub use mnemonics::{bip39::Bip39Mnemonic, Mnemonic};
 pub use seed::Seed;
 pub use wallets::{bitcoin::BitcoinWallet, monero::MoneroWallet, Wallet};
 mod random;
+
+pub use bitcoin::util::bip32::ExtendedPrivKey;

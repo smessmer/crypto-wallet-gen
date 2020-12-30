@@ -20,9 +20,9 @@ fn xmr_example_without_password() {
         .unwrap();
     assert_eq!(
         "e62551cad9fe0f05d7c84cf6a0ef7e8fc0534c2694279fc6e46d38f21a3f6ed3",
-        hex::encode(derived.to_bytes()),
+        hex::encode(derived.private_key.to_bytes()),
     );
-    let wallet = MoneroWallet::from_seed(&derived).unwrap();
+    let wallet = MoneroWallet::from_extended_key(derived).unwrap();
     assert_eq!(
         "dd62d51183f6208cf4d1b9af523f2c80bf534c2694279fc6e46d38f21a3f6e03",
         wallet.private_spend_key(),
@@ -52,10 +52,10 @@ fn btc_example_without_password() {
             address_index: Some(0),
         })
         .unwrap();
-    let wallet = BitcoinWallet::from_seed(&derived).unwrap();
+    let wallet = BitcoinWallet::from_extended_key(derived).unwrap();
     assert_eq!(
-        "KxpYae1CiPGjy1UUQueMVaDAs1eDpUUzf9QYteGYBJH98hU9Ka1k",
-        wallet.wif(),
+        "xprvA3vaqsvkTobj2wczyNukcxwCFAFciX6XNJdQdAFgLiCYsssnLRb4FYC6qd6vaQWWL2EThqAhHHqxtWiK6ts9A8fY7Vizy6JEpsGjF8YMY2g",
+        wallet.private_key(),
     );
 }
 
@@ -73,10 +73,10 @@ fn btc_example_subaddress_without_password() {
             address_index: Some(15),
         })
         .unwrap();
-    let wallet = BitcoinWallet::from_seed(&derived).unwrap();
+    let wallet = BitcoinWallet::from_extended_key(derived).unwrap();
     assert_eq!(
-        "L461b4XaN6TzUvS8EceZKFKSBmZwSABxJa1M3FVhW2fngeu5z9mb",
-        wallet.wif(),
+        "xprvA37UqVh8aYoGwVuSMADMgJegXsYEe6q7jXGvCmxxcyLu5yaiphJXPDpKcvY2XRB4aeba3MU8R79U2fpTPggjHhmVRexLBWUEtsbhs4vEus2",
+        wallet.private_key(),
     );
 }
 
@@ -94,9 +94,9 @@ fn btc_example_subaddress_with_password() {
             address_index: Some(15),
         })
         .unwrap();
-    let wallet = BitcoinWallet::from_seed(&derived).unwrap();
+    let wallet = BitcoinWallet::from_extended_key(derived).unwrap();
     assert_eq!(
-        "KwUhiQrUdSbJPxf1hhdSwHauHdTXNkzT4gZvZyhvjRX9psoiNswG",
-        wallet.wif(),
+        "xprvA3mJpHT2oXZVZ7npWtcsonzQV4BuHQsmoWFPN1VQ3f2UVp34ZjnDziay8bwbLgxHuhvj2tqs3H4rbiZ7eESN3PUQEDcu2GmJKVoKSCKpBii",
+        wallet.private_key(),
     );
 }

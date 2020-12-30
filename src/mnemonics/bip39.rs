@@ -39,9 +39,8 @@ impl Mnemonic for Bip39Mnemonic {
     }
 
     fn to_seed(&self, password: &str) -> HDSeed {
-        HDSeed::new(Seed::from_bytes(
-            _Seed::new(&self.mnemonic, password).as_bytes().to_vec(),
-        ))
+        let seed = Seed::from_bytes(_Seed::new(&self.mnemonic, password).as_bytes().to_vec());
+        HDSeed::new(seed)
     }
 }
 

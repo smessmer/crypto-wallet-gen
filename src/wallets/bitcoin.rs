@@ -1,29 +1,20 @@
 use anyhow::Result;
-use bitcoin::network::constants::Network;
-use bitcoin::secp256k1::SecretKey;
-use bitcoin::util::key::PrivateKey;
+use bitcoin::util::bip32::ExtendedPrivKey;
 
 use super::Wallet;
-use crate::seed::Seed;
 
 pub struct BitcoinWallet {
-    private_key: PrivateKey,
+    private_key: ExtendedPrivKey,
 }
 
 impl BitcoinWallet {
-    pub fn wif(&self) -> String {
-        self.private_key.to_wif()
+    pub fn private_key(&self) -> String {
+        format!("{}", self.private_key)
     }
 }
 
 impl Wallet for BitcoinWallet {
-    fn from_seed(seed: &Seed) -> Result<BitcoinWallet> {
-        Ok(BitcoinWallet {
-            private_key: PrivateKey {
-                compressed: true,
-                network: Network::Bitcoin,
-                key: SecretKey::from_slice(seed.to_bytes())?,
-            },
-        })
+    fn from_extended_key(private_key: ExtendedPrivKey) -> Result<Self> {
+        Ok(Self { private_key })
     }
 }
