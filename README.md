@@ -9,7 +9,7 @@ We support both [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.med
 
 Generating a wallet from a seed phrase is a good way to secure your funds. You can, for example, print out the seed phrase (or etch it into metal cards for extra durability)
 and store it offline. With this seed phrase (and the chosen password, if any), you can always restore access to your funds if the hard drive with your
-crypto money happens to die. Or you carry it with you to get access on your funds from somewhere else.
+crypto money happens to die. Or you carry it with you to get access to your funds from somewhere else.
 
 ## Usage
 
