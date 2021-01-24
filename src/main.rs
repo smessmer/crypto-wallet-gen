@@ -139,7 +139,7 @@ fn main() -> Result<()> {
             .map(Some)
             .context("Couldn't parse address-index argument")
     })?;
-    if address_index.is_some() && !change_index.is_some() {
+    if address_index.is_some() && change_index.is_none() {
         panic!("--address-index can only be specified if --change-index is also specified.");
     }
     let password1 = Trompt::stdout()
