@@ -14,6 +14,7 @@ arg_enum! {
         // List: https://github.com/libbitcoin/libbitcoin-system/wiki/Altcoin-Version-Mappings#10-monero-xmr-bip-3944-technology-examples
         BTC,
         XMR,
+        ETH,
     }
 }
 
@@ -21,6 +22,7 @@ impl CoinType {
     fn bip44_value(self) -> u32 {
         match self {
             Self::BTC => 0,
+            Self::ETH => 60,
             Self::XMR => 128,
         }
     }

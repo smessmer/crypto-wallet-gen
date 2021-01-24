@@ -5,8 +5,8 @@ use thiserror::Error;
 use trompt::Trompt;
 
 use crypto_wallet_gen::{
-    Bip39Mnemonic, Bip44DerivationPath, BitcoinWallet, CoinType, HDPrivKey, Mnemonic,
-    MnemonicFactory, MoneroWallet, ScryptMnemonic, Wallet,
+    Bip39Mnemonic, Bip44DerivationPath, BitcoinWallet, CoinType, EthereumWallet, HDPrivKey,
+    Mnemonic, MnemonicFactory, MoneroWallet, ScryptMnemonic, Wallet,
 };
 
 // TODO This is only needed because trompt::Error doesn't implement std::error::TromptError. https://gitlab.com/runarberg/trompt/-/issues/4
@@ -190,6 +190,16 @@ fn main() -> Result<()> {
             let wallet = BitcoinWallet::from_hd_key(derived)?;
 
             println!("Private Key: {}", wallet.private_key(),);
+        }
+        CoinType::ETH => {
+            let wallet = EthereumWallet::from_hd_key(derived)?;
+
+            println!(
+                "Private Key: {}\nPublic Key: {}\nAddress: {}",
+                wallet.private_key(),
+                wallet.public_key(),
+                wallet.address()?,
+            );
         }
     }
 
