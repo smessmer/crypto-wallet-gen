@@ -59,6 +59,29 @@ impl TryFrom<Bip44DerivationPath> for bitcoin::util::bip32::DerivationPath {
     }
 }
 
+impl std::fmt::Display for Bip44DerivationPath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "m/44'/{}'/{}'",
+            self.coin_type.bip44_value(),
+            self.account
+        )?;
+        if let Some(change) = self.change {
+            write!(f, "/{}", change)?;
+        } else {
+            assert!(
+                self.address_index.is_none(),
+                "address_index can only be set when change is set"
+            );
+        }
+        if let Some(address_index) = self.address_index {
+            write!(f, "/{}", address_index)?;
+        }
+        Ok(())
+    }
+}
+
 pub struct HDPrivKey {
     ext_key: ExtendedPrivKey,
 }
