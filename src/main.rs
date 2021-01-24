@@ -85,8 +85,20 @@ fn main() -> Result<()> {
                 .short("a")
                 .long("account-index")
                 .default_value("0")
-                .value_name("ACCOUNT INDEX")
+                .value_name("INDEX")
                 .help("The account index used for BIP44 key derivation"),
+        )
+        .arg(
+            Arg::with_name("change-index")
+                .long("change-index")
+                .value_name("INDEX")
+                .help("The change part of the BIP44 derivation path. If this parameter is not specified, we'll use a BIP44 path ending before the change part.")
+        )
+        .arg(
+            Arg::with_name("address-index")
+                .long("address-index")
+                .value_name("INDEX")
+                .help("The address index part of the BIP44 derivation path. If this parameter is not specified, we'll use a BIP44 path ending before the address index part.")
         )
         .arg(
             Arg::with_name("scrypt")
@@ -117,6 +129,19 @@ fn main() -> Result<()> {
         .expect("Can't fail because we specify a default value")
         .parse()
         .context("Couldn't parse account-index argument")?;
+    let change_index: Option<u32> = args.value_of("change-index").map_or(Ok(None), |arg| {
+        arg.parse()
+            .map(Some)
+            .context("Couldn't parse change-index argument")
+    })?;
+    let address_index: Option<u32> = args.value_of("address-index").map_or(Ok(None), |arg| {
+        arg.parse()
+            .map(Some)
+            .context("Couldn't parse address-index argument")
+    })?;
+    if address_index.is_some() && !change_index.is_some() {
+        panic!("--address-index can only be specified if --change-index is also specified.");
+    }
     let password1 = Trompt::stdout()
         .silent()
         .prompt("Password: ")
@@ -135,14 +160,27 @@ fn main() -> Result<()> {
     if scrypt {
         println!("done");
     }
-    let derived = derive_key(master_key, coin_type, account_index)?;
+    // Don't derive change and address_index, this is up to the wallet software.
+    // Doing it this way means we can directly import our private key into electrum
+    // and it will match the BIP44 standard.
+    let derivation_path = Bip44DerivationPath {
+        coin_type,
+        account: account_index,
+        change: change_index,
+        address_index,
+    };
+    println!(
+        "Mnemonic: {}\nPassword: [omitted from output]\nBIP44 Derivation Path: {}",
+        mnemonic.phrase(),
+        derivation_path,
+    );
+    let derived = derive_key(master_key, derivation_path)?;
     match coin_type {
         CoinType::XMR => {
             let wallet = MoneroWallet::from_hd_key(derived)?;
 
             println!(
-                "Mnemonic: {}\nPassword: [omitted]\nAddress: {}\nPrivate View Key: {}\nPrivate Spend Key: {}",
-                mnemonic.phrase(),
+                "Address: {}\nPrivate View Key: {}\nPrivate Spend Key: {}",
                 wallet.address()?,
                 wallet.private_view_key(),
                 wallet.private_spend_key(),
@@ -151,27 +189,15 @@ fn main() -> Result<()> {
         CoinType::BTC => {
             let wallet = BitcoinWallet::from_hd_key(derived)?;
 
-            println!(
-                "Mnemonic: {}\nPassword: [omitted]\nPrivate Key: {}",
-                mnemonic.phrase(),
-                wallet.private_key(),
-            );
+            println!("Private Key: {}", wallet.private_key(),);
         }
     }
 
     Ok(())
 }
 
-fn derive_key(master_key: HDPrivKey, coin_type: CoinType, account: u32) -> Result<HDPrivKey> {
-    master_key.derive(Bip44DerivationPath {
-        coin_type,
-        account,
-        // Don't derive change and address_index, this is up to the wallet software.
-        // Doing it this way means we can directly import our private key into electrum
-        // and it will match the BIP44 standard.
-        change: None,
-        address_index: None,
-    })
+fn derive_key(master_key: HDPrivKey, path: Bip44DerivationPath) -> Result<HDPrivKey> {
+    master_key.derive(path)
 }
 
 #[cfg(test)]
@@ -190,7 +216,8 @@ mod tests {
             .unwrap();
         assert_eq!(
             "xprv9zEiTz4LvP1k9brLSck5yX41EzVi3xbC2ZkPhWdyTqvJu3ovQCD6R8Z8RUoTwKkwpdqMne95zSrk9duV2SYhmmRkxvZAMsdqNHThKP8STbi",
-            derive_key(master_seed, CoinType::BTC, 0).unwrap().to_base58(),
+            derive_key(master_seed, Bip44DerivationPath {
+                coin_type: CoinType::BTC, account: 0, change: None, address_index: None}).unwrap().to_base58(),
         );
         // and loaded that key into electrum, checking that electrum generates the BIP44 addresses
         // listed on https://iancoleman.io/bip39/
