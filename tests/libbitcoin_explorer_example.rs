@@ -1,6 +1,6 @@
 use crypto_wallet_gen::{
-    Bip39Mnemonic, Bip44DerivationPath, BitcoinWallet, CoinType, Mnemonic, MnemonicFactory,
-    MoneroWallet, Wallet,
+    Bip39Mnemonic, Bip44DerivationPath, BitcoinWallet, CoinType, EthereumWallet, Mnemonic,
+    MnemonicFactory, MoneroWallet, Wallet,
 };
 
 #[test]
@@ -104,4 +104,84 @@ fn btc_example_subaddress_with_password() {
         "xprvA3mJpHT2oXZVZ7npWtcsonzQV4BuHQsmoWFPN1VQ3f2UVp34ZjnDziay8bwbLgxHuhvj2tqs3H4rbiZ7eESN3PUQEDcu2GmJKVoKSCKpBii",
         wallet.private_key(),
     );
+}
+
+#[test]
+fn eth_example_without_password() {
+    // Generated at https://myetherwallet.com
+    let seed = Bip39Mnemonic::from_phrase(
+        "tray busy leopard image soon twelve solar transfer donate inhale error chaos",
+    )
+    .unwrap()
+    .to_private_key("")
+    .unwrap();
+    let derived = seed
+        .derive(Bip44DerivationPath {
+            coin_type: CoinType::ETH,
+            account: 0,
+            change: Some(0),
+            address_index: Some(0),
+        })
+        .unwrap();
+    let wallet = EthereumWallet::from_hd_key(derived).unwrap();
+    assert_eq!(
+        "0x4d5475bED2Ce80fAaF21A2a773b63B7f5cB721db",
+        wallet.address().unwrap(),
+    );
+}
+
+#[test]
+fn eth_example_with_password() {
+    // Generated at https://myetherwallet.com
+    let seed = Bip39Mnemonic::from_phrase(
+        "tray busy leopard image soon twelve solar transfer donate inhale error chaos",
+    )
+    .unwrap()
+    .to_private_key("My Password")
+    .unwrap();
+    let derived = seed
+        .derive(Bip44DerivationPath {
+            coin_type: CoinType::ETH,
+            account: 0,
+            change: Some(0),
+            address_index: Some(2),
+        })
+        .unwrap();
+    let wallet = EthereumWallet::from_hd_key(derived).unwrap();
+    assert_eq!(
+        "0x169e507D6AB1c4Ab7840EB0A3C72cf5DbE85fadf",
+        wallet.address().unwrap(),
+    );
+}
+
+#[test]
+fn eth_example_with_longer_mnemonic() {
+    // This is an example generated with our own code, so it's a regression test making sure we keep generating the same keys
+    let seed = Bip39Mnemonic::from_phrase(
+        "fat label impose baby punch black oven wife gasp above eight fun canvas ready laundry impact blue inflict hawk supply guitar patrol cheap hard",
+    )
+    .unwrap()
+    .to_private_key("My Password")
+    .unwrap();
+    let derived = seed
+        .derive(Bip44DerivationPath {
+            coin_type: CoinType::ETH,
+            account: 0,
+            change: Some(0),
+            address_index: Some(0),
+        })
+        .unwrap();
+    let wallet = EthereumWallet::from_hd_key(derived).unwrap();
+    assert_eq!(
+        "0xE9F0681659503D5634AFa654CED1AeeE88A10272",
+        wallet.address().unwrap(),
+    );
+    assert_eq!(
+        "fa98c0ee1a7fc851883b098c72e0ab3c7276bdc327048f7ebec5658427de75f4",
+        wallet.private_key(),
+    );
+    assert_eq!(
+        "04f417d179b6d6ca7d90ed175bc74ead3a6c4266115c4f4069860b817ffb907b9b8dd806c8fe5c85ce1213cbd97d8d981dd01fe19f812df3690070db1d68b1e5",
+        wallet.public_key(),
+    )
 }
