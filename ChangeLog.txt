@@ -1,3 +1,8 @@
+2.1.0 (unreleased)
+------
+- Add support for generating ETH wallets
+- Allow specifying change-index and address-index
+
 2.0.0
 ------
 - Build with LTO
