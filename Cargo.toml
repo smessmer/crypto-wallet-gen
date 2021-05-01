@@ -2,7 +2,7 @@
 authors = ["Sebastian Messmer"]
 edition = "2018"
 name = "crypto-wallet-gen"
-version = "2.1.0"
+version = "2.2.0"
 readme = "README.md"
 documentation = "https://github.com/smessmer/crypto-wallet-gen"
 homepage = "https://github.com/smessmer/crypto-wallet-gen"
