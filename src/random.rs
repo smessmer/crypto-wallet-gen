@@ -127,7 +127,7 @@ impl<R: RngCore> RngCore for RngOrZeroes<R> {
 
 // RandCore5Wrapper is a random generator that wraps a random generator from
 // rand_core version 5 and implements the random generator from rand_core version 8.
-// This is required because the rdrand crate uses rand_core 5 but we use rand_core 8.
+// This is required because the rand_jitter crate uses rand_core 5 but we use rand_core 8.
 struct RandCore5Wrapper<R: rand_core_5::RngCore>(R);
 impl<R: rand_core_5::RngCore> RngCore for RandCore5Wrapper<R> {
     fn next_u32(&mut self) -> u32 {
@@ -153,7 +153,7 @@ impl<R: rand_core_5::RngCore> RngCore for RandCore5Wrapper<R> {
 // we only use it in an xor composite with other random generators.
 fn rdseed_or_zeroes() -> impl RngCore {
     match RdSeed::new() {
-        Ok(rdseed) => RngOrZeroes(Some(RandCore5Wrapper(rdseed))),
+        Ok(rdseed) => RngOrZeroes(Some(rdseed)),
         Err(err) => {
             println!("Warning: Not able to use RDSEED random generator. Generated keys might be less random. Error message: {}", err);
             RngOrZeroes(None)
@@ -166,7 +166,7 @@ fn rdseed_or_zeroes() -> impl RngCore {
 // we only use it in an xor composite with other random generators.
 fn rdrand_or_zeroes() -> impl RngCore {
     match RdRand::new() {
-        Ok(rdrand) => RngOrZeroes(Some(RandCore5Wrapper(rdrand))),
+        Ok(rdrand) => RngOrZeroes(Some(rdrand)),
         Err(err) => {
             println!("Warning: Not able to use RDRAND random generator. Generated keys might be less random. Error message: {}", err);
             RngOrZeroes(None)

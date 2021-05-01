@@ -10,6 +10,7 @@ use crate::seed::Seed;
 
 arg_enum! {
     #[derive(Debug, Clone, Copy)]
+    #[allow(clippy::upper_case_acronyms)]
     pub enum CoinType {
         // List: https://github.com/libbitcoin/libbitcoin-system/wiki/Altcoin-Version-Mappings#10-monero-xmr-bip-3944-technology-examples
         BTC,
@@ -84,6 +85,7 @@ impl std::fmt::Display for Bip44DerivationPath {
     }
 }
 
+#[allow(clippy::upper_case_acronyms)]
 pub struct HDPrivKey {
     ext_key: ExtendedPrivKey,
 }

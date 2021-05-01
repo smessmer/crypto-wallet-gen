@@ -1,5 +1,5 @@
 use anyhow::Result;
-use scrypt::{scrypt, ScryptParams};
+use scrypt::{scrypt, Params};
 use unicode_normalization::UnicodeNormalization;
 
 use super::bip39::Bip39Mnemonic;
@@ -59,16 +59,16 @@ fn kdf(password: &[u8], salt: &[u8]) -> Result<Vec<u8>> {
 }
 
 #[cfg(test)]
-fn scrypt_params() -> ScryptParams {
+fn scrypt_params() -> Params {
     // Tests need lower scrypt params or they won't be able to run on CI machines
-    ScryptParams::new(12, 1, 1).expect("Invalid hardcoded scrypt params")
+    Params::new(12, 1, 1).expect("Invalid hardcoded scrypt params")
 }
 
 #[cfg(not(test))]
-fn scrypt_params() -> ScryptParams {
+fn scrypt_params() -> Params {
     // Using parameters that are higher than the ones proposed in BIP38
     // (note log2(N) == 21 means N == 2097152)
-    ScryptParams::new(21, 8, 8).expect("Invalid hardcoded scrypt params")
+    Params::new(21, 8, 8).expect("Invalid hardcoded scrypt params")
 }
 
 #[cfg(test)]
