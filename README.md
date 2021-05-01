@@ -55,7 +55,7 @@ Private Key: xprv9yUdDyYgknA92Cb4xfsqSXxQzGtELBm1kvXVvmp5MpW3UwjevPGEX29pjR9MAL1
 
 ## Installation
 
-#### 1. Install the rust programming language
+#### 1. Install cargo (package manager for the rust programming language)
 
 You can use [this one-step install command](https://www.rust-lang.org/tools/install).
 
@@ -69,11 +69,9 @@ Also make sure, you have openssl and a linker installed, for example by running 
 $ sudo apt install libssl-dev pkg-config gcc
 ```
 
-#### 2. Check out the crypto-wallet-gen repository and install it
+#### 2. Install crypto-wallet-gen
 ```
-$ git clone https://github.com/smessmer/crypto-wallet-gen
-$ cd crypto-wallet-gen
-$ cargo install --path .
+$ cargo install crypto-wallet-gen
 ```
 
 ## How keys are derived
