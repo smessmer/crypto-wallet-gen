@@ -9,7 +9,7 @@ homepage = "https://github.com/smessmer/crypto-wallet-gen"
 repository = "https://github.com/smessmer/crypto-wallet-gen"
 license = "GPL-3.0-or-later"
 keywords = ["cryptocurrency", "wallet", "bitcoin", "monero", "ethereum"]
-categories = ["command-line-utilities", "cryptography:cryptocurrencies"]
+categories = ["command-line-utilities", "cryptography::cryptocurrencies"]
 description = "This is a utility to generate seed phrases and to generate crypto currency wallets from a seed phrase. This way, you only need to remember one seed phrase and can generate wallets from it for multiple currencies."
 
 [lib]
