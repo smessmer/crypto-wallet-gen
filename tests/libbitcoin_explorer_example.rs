@@ -24,7 +24,7 @@ fn xmr_example_without_password() {
         "e62551cad9fe0f05d7c84cf6a0ef7e8fc0534c2694279fc6e46d38f21a3f6ed3",
         hex::encode(derived.key_part().to_bytes()),
     );
-    let wallet = MoneroWallet::from_hd_key(derived).unwrap();
+    let wallet = MoneroWallet::from_hd_key(&derived).unwrap();
     assert_eq!(
         "dd62d51183f6208cf4d1b9af523f2c80bf534c2694279fc6e46d38f21a3f6e03",
         wallet.private_spend_key(),
@@ -55,7 +55,7 @@ fn btc_example_without_password() {
             address_index: Some(0),
         })
         .unwrap();
-    let wallet = BitcoinWallet::from_hd_key(derived).unwrap();
+    let wallet = BitcoinWallet::from_hd_key(&derived).unwrap();
     assert_eq!(
         "xprvA3vaqsvkTobj2wczyNukcxwCFAFciX6XNJdQdAFgLiCYsssnLRb4FYC6qd6vaQWWL2EThqAhHHqxtWiK6ts9A8fY7Vizy6JEpsGjF8YMY2g",
         wallet.private_key(),
@@ -77,7 +77,7 @@ fn btc_example_subaddress_without_password() {
             address_index: Some(15),
         })
         .unwrap();
-    let wallet = BitcoinWallet::from_hd_key(derived).unwrap();
+    let wallet = BitcoinWallet::from_hd_key(&derived).unwrap();
     assert_eq!(
         "xprvA37UqVh8aYoGwVuSMADMgJegXsYEe6q7jXGvCmxxcyLu5yaiphJXPDpKcvY2XRB4aeba3MU8R79U2fpTPggjHhmVRexLBWUEtsbhs4vEus2",
         wallet.private_key(),
@@ -99,7 +99,7 @@ fn btc_example_subaddress_with_password() {
             address_index: Some(15),
         })
         .unwrap();
-    let wallet = BitcoinWallet::from_hd_key(derived).unwrap();
+    let wallet = BitcoinWallet::from_hd_key(&derived).unwrap();
     assert_eq!(
         "xprvA3mJpHT2oXZVZ7npWtcsonzQV4BuHQsmoWFPN1VQ3f2UVp34ZjnDziay8bwbLgxHuhvj2tqs3H4rbiZ7eESN3PUQEDcu2GmJKVoKSCKpBii",
         wallet.private_key(),
@@ -123,7 +123,7 @@ fn eth_example_without_password() {
             address_index: Some(0),
         })
         .unwrap();
-    let wallet = EthereumWallet::from_hd_key(derived).unwrap();
+    let wallet = EthereumWallet::from_hd_key(&derived).unwrap();
     assert_eq!(
         "0x4d5475bED2Ce80fAaF21A2a773b63B7f5cB721db",
         wallet.address().unwrap(),
@@ -147,7 +147,7 @@ fn eth_example_with_password() {
             address_index: Some(2),
         })
         .unwrap();
-    let wallet = EthereumWallet::from_hd_key(derived).unwrap();
+    let wallet = EthereumWallet::from_hd_key(&derived).unwrap();
     assert_eq!(
         "0x169e507D6AB1c4Ab7840EB0A3C72cf5DbE85fadf",
         wallet.address().unwrap(),
@@ -171,7 +171,7 @@ fn eth_example_with_longer_mnemonic() {
             address_index: Some(0),
         })
         .unwrap();
-    let wallet = EthereumWallet::from_hd_key(derived).unwrap();
+    let wallet = EthereumWallet::from_hd_key(&derived).unwrap();
     assert_eq!(
         "0xE9F0681659503D5634AFa654CED1AeeE88A10272",
         wallet.address().unwrap(),

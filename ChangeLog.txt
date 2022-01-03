@@ -3,6 +3,7 @@
 - Update dependencies
 - Allow multiple account,change and address indices in one call
 - Move generation to "generate" CLI subcommand
+- Add new "search" subcommand that searches through different derivation paths and tries to find wallets with funds
 
 2.3.0
 ------

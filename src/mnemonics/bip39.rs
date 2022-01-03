@@ -54,6 +54,7 @@ impl Mnemonic for Bip39Mnemonic {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{Bip44DerivationPath, CoinType};
 
     fn expect_generated_key_is(expected_key: &str, phrase: &str, password: &str) {
         assert_eq!(
@@ -233,5 +234,26 @@ mod tests {
         )
         .unwrap_err();
         assert!(err.to_string().contains("invalid checksum"))
+    }
+
+    #[test]
+    fn test_electrum_derivation_matches_bip44() {
+        // Test that when importing a derived key into electrum, electrum generates the correct BIP44 keys.
+        // To test this, we generated a mnemonic at https://iancoleman.io/bip39/
+        let mnemonic = "giggle load civil velvet legend drink letter symbol vivid tube parent plug accuse fault choose ahead bomb make novel potato enrich honey cable exchange";
+        // We then use our tool to generate the private key
+        let master_seed = Bip39Mnemonic::from_phrase(mnemonic)
+            .unwrap()
+            .to_private_key("")
+            .unwrap();
+        assert_eq!(
+            "xprv9zEiTz4LvP1k9brLSck5yX41EzVi3xbC2ZkPhWdyTqvJu3ovQCD6R8Z8RUoTwKkwpdqMne95zSrk9duV2SYhmmRkxvZAMsdqNHThKP8STbi",
+            master_seed.derive(&Bip44DerivationPath {
+                coin_type: CoinType::BTC, account: 0, change: None, address_index: None}).unwrap().to_base58(),
+        );
+        // and loaded that key into electrum, checking that electrum generates the BIP44 addresses
+        // listed on https://iancoleman.io/bip39/
+        // So this test case is basically a test ensuring that we keep generating the same private key for which we already checked
+        // what electrum generates from it and don't start differring from it.
     }
 }

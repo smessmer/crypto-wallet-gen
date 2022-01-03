@@ -1,12 +1,14 @@
 use anyhow::{anyhow, Result};
+use async_trait::async_trait;
 use failure::Fail;
 use wagyu_model::private_key::PrivateKey;
 use wagyu_monero::format::MoneroFormat;
 use wagyu_monero::network::mainnet::Mainnet;
 use wagyu_monero::private_key::MoneroPrivateKey;
 
+use super::TransactionChecker;
 use super::Wallet;
-use crate::bip32::HDPrivKey;
+use crate::bip32::{CoinType, HDPrivKey};
 use crate::seed::Seed;
 
 pub struct MoneroWallet {
@@ -51,9 +53,36 @@ impl MoneroWallet {
     }
 }
 
+#[async_trait]
 impl Wallet for MoneroWallet {
-    fn from_hd_key(private_key: HDPrivKey) -> Result<Self> {
+    type TransactionChecker = MoneroTransactionChecker;
+    const COIN_TYPE: CoinType = CoinType::XMR;
+
+    fn from_hd_key(private_key: &HDPrivKey) -> Result<Self> {
         Self::from_seed(&private_key.key_part())
+    }
+
+    fn print_key(&self) -> Result<()> {
+        println!(
+            "Address: {}\nPrivate View Key: {}\nPrivate Spend Key: {}",
+            self.address()?,
+            self.private_view_key(),
+            self.private_spend_key(),
+        );
+        Ok(())
+    }
+
+    async fn new_transaction_checker() -> Result<MoneroTransactionChecker> {
+        Ok(MoneroTransactionChecker {})
+    }
+}
+
+pub struct MoneroTransactionChecker {}
+
+#[async_trait]
+impl TransactionChecker<MoneroWallet> for MoneroTransactionChecker {
+    async fn has_transactions(&self, wallet: &MoneroWallet) -> Result<bool> {
+        todo!()
     }
 }
 

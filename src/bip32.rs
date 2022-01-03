@@ -86,6 +86,7 @@ impl std::fmt::Display for Bip44DerivationPath {
 }
 
 #[allow(clippy::upper_case_acronyms)]
+#[derive(Clone)]
 pub struct HDPrivKey {
     ext_key: ExtendedPrivKey,
 }

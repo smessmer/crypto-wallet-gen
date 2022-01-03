@@ -1,16 +1,16 @@
 [package]
 authors = ["Sebastian Messmer"]
-edition = "2018"
-name = "crypto-wallet-gen"
-version = "2.3.0"
-readme = "README.md"
-documentation = "https://github.com/smessmer/crypto-wallet-gen"
-homepage = "https://github.com/smessmer/crypto-wallet-gen"
-repository = "https://github.com/smessmer/crypto-wallet-gen"
-license = "GPL-3.0-or-later"
-keywords = ["cryptocurrency", "wallet", "bitcoin", "monero", "ethereum"]
 categories = ["command-line-utilities", "cryptography::cryptocurrencies"]
 description = "This is a utility to generate seed phrases and to generate crypto currency wallets from a seed phrase. This way, you only need to remember one seed phrase and can generate wallets from it for multiple currencies."
+documentation = "https://github.com/smessmer/crypto-wallet-gen"
+edition = "2018"
+homepage = "https://github.com/smessmer/crypto-wallet-gen"
+keywords = ["cryptocurrency", "wallet", "bitcoin", "monero", "ethereum"]
+license = "GPL-3.0-or-later"
+name = "crypto-wallet-gen"
+readme = "README.md"
+repository = "https://github.com/smessmer/crypto-wallet-gen"
+version = "2.3.0"
 
 [lib]
 name = "crypto_wallet_gen"
@@ -22,9 +22,11 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow = "^1.0.52"
+async-trait = "^0.1.52"
 bitcoin = "^0.27.1"
 clap = "^2.34.0"
 failure = "^0.1.8"
+futures = "^0.3.19"
 hex = "^0.4.3"
 rand = {version = "^0.8.4", features = ["getrandom"]}
 rand_chacha = "^0.3.1"
@@ -37,6 +39,7 @@ secp256k1 = "^0.20.3"
 secp256k1_17 = {version = "^0.17.2", package = "secp256k1"}
 thiserror = "^1.0.30"
 tiny-bip39 = "^0.8.2"
+tokio = {version = "^1.15.0", features = ["rt-multi-thread", "macros"]}
 trompt = "^0.0.4"
 unicode-normalization = "^0.1.19"
 wagyu-ethereum = "^0.6.3"
