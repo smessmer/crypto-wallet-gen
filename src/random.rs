@@ -125,29 +125,6 @@ impl<R: RngCore> RngCore for RngOrZeroes<R> {
     }
 }
 
-// RandCore5Wrapper is a random generator that wraps a random generator from
-// rand_core version 5 and implements the random generator from rand_core version 8.
-// This is required because the rand_jitter crate uses rand_core 5 but we use rand_core 8.
-struct RandCore5Wrapper<R: rand_core_5::RngCore>(R);
-impl<R: rand_core_5::RngCore> RngCore for RandCore5Wrapper<R> {
-    fn next_u32(&mut self) -> u32 {
-        rand_core_5::RngCore::next_u32(&mut self.0)
-    }
-
-    fn next_u64(&mut self) -> u64 {
-        rand_core_5::RngCore::next_u64(&mut self.0)
-    }
-
-    fn fill_bytes(&mut self, dest: &mut [u8]) {
-        rand_core_5::RngCore::fill_bytes(&mut self.0, dest)
-    }
-
-    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
-        rand_core_5::RngCore::try_fill_bytes(&mut self.0, dest)
-            .map_err(|err| rand::Error::new(err.take_inner()))
-    }
-}
-
 // rdseed_or_zeroes returns a random generator based on RDSEED if that instruction
 // is available. Otherwise, it just outputs zeroes. This is secure because
 // we only use it in an xor composite with other random generators.
@@ -171,6 +148,29 @@ fn rdrand_or_zeroes() -> impl RngCore {
             println!("Warning: Not able to use RDRAND random generator. Generated keys might be less random. Error message: {}", err);
             RngOrZeroes(None)
         }
+    }
+}
+
+// RandCore5Wrapper is a random generator that wraps a random generator from
+// rand_core version 5 and implements the random generator from rand_core version 8.
+// This is required because the rand_jitter crate uses rand_core 5 but we use rand_core 8.
+struct RandCore5Wrapper<R: rand_core_5::RngCore>(R);
+impl<R: rand_core_5::RngCore> RngCore for RandCore5Wrapper<R> {
+    fn next_u32(&mut self) -> u32 {
+        rand_core_5::RngCore::next_u32(&mut self.0)
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        rand_core_5::RngCore::next_u64(&mut self.0)
+    }
+
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        rand_core_5::RngCore::fill_bytes(&mut self.0, dest)
+    }
+
+    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        rand_core_5::RngCore::try_fill_bytes(&mut self.0, dest)
+            .map_err(|err| rand::Error::new(err.take_inner()))
     }
 }
 
