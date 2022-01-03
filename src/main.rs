@@ -1,5 +1,5 @@
 use anyhow::{ensure, Context, Result};
-use clap::{crate_version, value_t, App, Arg};
+use clap::{crate_version, value_t, App, Arg, ArgMatches, SubCommand};
 use std::io::{self, Write};
 use thiserror::Error;
 use trompt::Trompt;
@@ -81,32 +81,34 @@ fn main() -> Result<()> {
                 .help("The mnemonic seed phrase to use to generate the wallet"),
         )
         .arg(
-            Arg::with_name("account-index")
-                .short("a")
-                .long("account-index")
-                .multiple(true)
-                .value_name("INDEX")
-                .help("The account index used for BIP44 key derivation"),
-        )
-        .arg(
-            Arg::with_name("change-index")
-                .long("change-index")
-                .multiple(true)
-                .value_name("INDEX")
-                .help("The change part of the BIP44 derivation path. If this parameter is not specified, we'll use a BIP44 path ending before the change part.")
-        )
-        .arg(
-            Arg::with_name("address-index")
-                .long("address-index")
-                .multiple(true)
-                .value_name("INDEX")
-                .help("The address index part of the BIP44 derivation path. If this parameter is not specified, we'll use a BIP44 path ending before the address index part.")
-        )
-        .arg(
             Arg::with_name("scrypt")
             .short("s")
             .long("scrypt")
             .help("Use scrypt instead of PBKDF2 in the BIP39 derivation. This makes keys harder to brute force, but it deviates from the BIP39 standard.")
+        )
+        .subcommand(SubCommand::with_name("generate")
+            .arg(
+                Arg::with_name("account-index")
+                    .short("a")
+                    .long("account-index")
+                    .multiple(true)
+                    .value_name("INDEX")
+                    .help("The account index used for BIP44 key derivation"),
+            )
+            .arg(
+                Arg::with_name("change-index")
+                    .long("change-index")
+                    .multiple(true)
+                    .value_name("INDEX")
+                    .help("The change part of the BIP44 derivation path. If this parameter is not specified, we'll use a BIP44 path ending before the change part.")
+            )
+            .arg(
+                Arg::with_name("address-index")
+                    .long("address-index")
+                    .multiple(true)
+                    .value_name("INDEX")
+                    .help("The address index part of the BIP44 derivation path. If this parameter is not specified, we'll use a BIP44 path ending before the address index part.")
+            )
         )
         .get_matches();
 
@@ -126,33 +128,6 @@ fn main() -> Result<()> {
                 .unwrap_or_else(Bip39Mnemonic::generate)?,
         )
     };
-    let account_indices: Option<Vec<u32>> = args
-        .values_of("account-index")
-        .map_or(Ok(None), |v| {
-            v.map(|v| v.parse::<u32>())
-                .collect::<Result<Vec<u32>, _>>()
-                .map(Some)
-        })
-        .context("Couldn't parse account-index argument")?;
-    let change_indices: Option<Vec<u32>> = args
-        .values_of("change-index")
-        .map_or(Ok(None), |v| {
-            v.map(|v| v.parse::<u32>())
-                .collect::<Result<Vec<u32>, _>>()
-                .map(Some)
-        })
-        .context("Couldn't parse change-index argument")?;
-    let address_indices: Option<Vec<u32>> = args
-        .values_of("address-index")
-        .map_or(Ok(None), |v| {
-            v.map(|v| v.parse::<u32>())
-                .collect::<Result<Vec<u32>, _>>()
-                .map(Some)
-        })
-        .context("Couldn't parse address-index argument")?;
-    if address_indices.is_some() && change_indices.is_none() {
-        panic!("--address-index can only be specified if --change-index is also specified.");
-    }
     let password1 = Trompt::stdout()
         .silent()
         .prompt("Password: ")
@@ -175,6 +150,48 @@ fn main() -> Result<()> {
         "Mnemonic: {}\nPassword: [omitted from output]",
         mnemonic.phrase()
     );
+
+    if let Some(generate_args) = args.subcommand_matches("generate") {
+        handle_generate(coin_type, &master_key, generate_args)?;
+    } else {
+        println!("Error: Please specify subcommand, e.g. 'generate' on the command line.");
+    }
+
+    Ok(())
+}
+
+fn handle_generate(
+    coin_type: CoinType,
+    master_key: &HDPrivKey,
+    generate_args: &ArgMatches,
+) -> Result<()> {
+    let account_indices: Option<Vec<u32>> = generate_args
+        .values_of("account-index")
+        .map_or(Ok(None), |v| {
+            v.map(|v| v.parse::<u32>())
+                .collect::<Result<Vec<u32>, _>>()
+                .map(Some)
+        })
+        .context("Couldn't parse account-index argument")?;
+    let change_indices: Option<Vec<u32>> = generate_args
+        .values_of("change-index")
+        .map_or(Ok(None), |v| {
+            v.map(|v| v.parse::<u32>())
+                .collect::<Result<Vec<u32>, _>>()
+                .map(Some)
+        })
+        .context("Couldn't parse change-index argument")?;
+    let address_indices: Option<Vec<u32>> = generate_args
+        .values_of("address-index")
+        .map_or(Ok(None), |v| {
+            v.map(|v| v.parse::<u32>())
+                .collect::<Result<Vec<u32>, _>>()
+                .map(Some)
+        })
+        .context("Couldn't parse address-index argument")?;
+    if address_indices.is_some() && change_indices.is_none() {
+        panic!("--address-index can only be specified if --change-index is also specified.");
+    }
 
     let account_indices = account_indices.unwrap_or_else(|| vec![0, 1, 2]);
 

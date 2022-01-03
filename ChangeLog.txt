@@ -1,7 +1,8 @@
-2.4.0
+3.0.0 (unreleased)
 ------
 - Update dependencies
 - Allow multiple account,change and address indices in one call
+- Move generation to "generate" CLI subcommand
 
 2.3.0
 ------

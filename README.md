@@ -16,7 +16,7 @@ crypto money happens to die. Or you carry it with you to get access to your fund
 #### 1. Generate seed phrase and bitcoin wallets for it
 
 ```
-$ crypto-wallet-gen -c BTC
+$ crypto-wallet-gen -c BTC generate
 Password: 
 Repeat Password:
 Mnemonic: select smart all afford joke rate soul abuse cover text receive height glimpse depend absent barely provide dilemma depend humor toy sing sock client
@@ -38,7 +38,7 @@ The Private Keys can be entered to import the bitcoin wallets into your favourit
 #### 2. Generate a Monero wallet with the same seed phrase
 
 ```
-$ crypto-wallet-gen -c XMR --from-mnemonic "select smart all afford joke rate soul abuse cover text receive height glimpse depend absent barely provide dilemma depend humor toy sing sock client"
+$ crypto-wallet-gen -c XMR --from-mnemonic "select smart all afford joke rate soul abuse cover text receive height glimpse depend absent barely provide dilemma depend humor toy sing sock client" generate
 Password: 
 Repeat Password: 
 Mnemonic: select smart all afford joke rate soul abuse cover text receive height glimpse depend absent barely provide dilemma depend humor toy sing sock client
@@ -65,7 +65,7 @@ That's it. The addresses, private spend keys and private view keys can be used t
 Now say you loose access to your Bitcoin or Monero wallet, using the mnemonic and step 2 above, you can always recover the Monero wallet again, and similarly you can recover your bitcoin wallet:
 
 ```
-$ crypto-wallet-gen -c BTC --from-mnemonic "select smart all afford joke rate soul abuse cover text receive height glimpse depend absent barely provide dilemma depend humor toy sing sock client"
+$ crypto-wallet-gen -c BTC --from-mnemonic "select smart all afford joke rate soul abuse cover text receive height glimpse depend absent barely provide dilemma depend humor toy sing sock client" generate
 Password: 
 Repeat Password: 
 Mnemonic: select smart all afford joke rate soul abuse cover text receive height glimpse depend absent barely provide dilemma depend humor toy sing sock client
