@@ -128,15 +128,27 @@ fn main() -> Result<()> {
     };
     let account_indices: Option<Vec<u32>> = args
         .values_of("account-index")
-        .map_or(Ok(None), |v| v.map(|v| v.parse::<u32>()).collect::<Result<Vec<u32>, _>>().map(Some))
+        .map_or(Ok(None), |v| {
+            v.map(|v| v.parse::<u32>())
+                .collect::<Result<Vec<u32>, _>>()
+                .map(Some)
+        })
         .context("Couldn't parse account-index argument")?;
     let change_indices: Option<Vec<u32>> = args
         .values_of("change-index")
-        .map_or(Ok(None), |v| v.map(|v| v.parse::<u32>()).collect::<Result<Vec<u32>, _>>().map(Some))
+        .map_or(Ok(None), |v| {
+            v.map(|v| v.parse::<u32>())
+                .collect::<Result<Vec<u32>, _>>()
+                .map(Some)
+        })
         .context("Couldn't parse change-index argument")?;
     let address_indices: Option<Vec<u32>> = args
         .values_of("address-index")
-        .map_or(Ok(None), |v| v.map(|v| v.parse::<u32>()).collect::<Result<Vec<u32>, _>>().map(Some))
+        .map_or(Ok(None), |v| {
+            v.map(|v| v.parse::<u32>())
+                .collect::<Result<Vec<u32>, _>>()
+                .map(Some)
+        })
         .context("Couldn't parse address-index argument")?;
     if address_indices.is_some() && change_indices.is_none() {
         panic!("--address-index can only be specified if --change-index is also specified.");
@@ -159,13 +171,18 @@ fn main() -> Result<()> {
     if scrypt {
         println!("done");
     }
-    println!("Mnemonic: {}\nPassword: [omitted from output]", mnemonic.phrase());
+    println!(
+        "Mnemonic: {}\nPassword: [omitted from output]",
+        mnemonic.phrase()
+    );
 
     let account_indices = account_indices.unwrap_or_else(|| vec![0, 1, 2]);
 
     for account_index in account_indices {
         if let Some(address_indices) = &address_indices {
-            let change_indices = change_indices.as_ref().expect("When address-index is defined, change-index must be defined as well");
+            let change_indices = change_indices
+                .as_ref()
+                .expect("When address-index is defined, change-index must be defined as well");
             for change_index in change_indices {
                 for address_index in address_indices {
                     let derivation_path = Bip44DerivationPath {
@@ -187,12 +204,15 @@ fn main() -> Result<()> {
             print_key(coin_type, &master_key, &derivation_path)?;
         }
     }
-    
 
     Ok(())
 }
 
-fn print_key(coin_type: CoinType, master_key: &HDPrivKey, derivation_path: &Bip44DerivationPath) -> Result<()> {
+fn print_key(
+    coin_type: CoinType,
+    master_key: &HDPrivKey,
+    derivation_path: &Bip44DerivationPath,
+) -> Result<()> {
     println!(
         "--------------------------------------------------------------------------------------\nBIP44 Derivation Path: {}",
         derivation_path,
