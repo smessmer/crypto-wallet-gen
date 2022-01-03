@@ -91,12 +91,14 @@ fn main() -> Result<()> {
         .arg(
             Arg::with_name("change-index")
                 .long("change-index")
+                .multiple(true)
                 .value_name("INDEX")
                 .help("The change part of the BIP44 derivation path. If this parameter is not specified, we'll use a BIP44 path ending before the change part.")
         )
         .arg(
             Arg::with_name("address-index")
                 .long("address-index")
+                .multiple(true)
                 .value_name("INDEX")
                 .help("The address index part of the BIP44 derivation path. If this parameter is not specified, we'll use a BIP44 path ending before the address index part.")
         )
@@ -124,22 +126,19 @@ fn main() -> Result<()> {
                 .unwrap_or_else(Bip39Mnemonic::generate)?,
         )
     };
-    let account_indices: Vec<u32> = args
+    let account_indices: Option<Vec<u32>> = args
         .values_of("account-index")
-        .map(|v| v.map(|v| v.parse::<u32>()).collect::<Result<Vec<u32>, _>>())
-        .unwrap_or_else(|| Ok(vec![0, 1, 2]))
+        .map_or(Ok(None), |v| v.map(|v| v.parse::<u32>()).collect::<Result<Vec<u32>, _>>().map(Some))
         .context("Couldn't parse account-index argument")?;
-    let change_index: Option<u32> = args.value_of("change-index").map_or(Ok(None), |arg| {
-        arg.parse()
-            .map(Some)
-            .context("Couldn't parse change-index argument")
-    })?;
-    let address_index: Option<u32> = args.value_of("address-index").map_or(Ok(None), |arg| {
-        arg.parse()
-            .map(Some)
-            .context("Couldn't parse address-index argument")
-    })?;
-    if address_index.is_some() && change_index.is_none() {
+    let change_indices: Option<Vec<u32>> = args
+        .values_of("change-index")
+        .map_or(Ok(None), |v| v.map(|v| v.parse::<u32>()).collect::<Result<Vec<u32>, _>>().map(Some))
+        .context("Couldn't parse change-index argument")?;
+    let address_indices: Option<Vec<u32>> = args
+        .values_of("address-index")
+        .map_or(Ok(None), |v| v.map(|v| v.parse::<u32>()).collect::<Result<Vec<u32>, _>>().map(Some))
+        .context("Couldn't parse address-index argument")?;
+    if address_indices.is_some() && change_indices.is_none() {
         panic!("--address-index can only be specified if --change-index is also specified.");
     }
     let password1 = Trompt::stdout()
@@ -162,14 +161,31 @@ fn main() -> Result<()> {
     }
     println!("Mnemonic: {}\nPassword: [omitted from output]", mnemonic.phrase());
 
+    let account_indices = account_indices.unwrap_or_else(|| vec![0, 1, 2]);
+
     for account_index in account_indices {
-        let derivation_path = Bip44DerivationPath {
-            coin_type,
-            account: account_index,
-            change: change_index,
-            address_index,
-        };
-        print_key(coin_type, &master_key, &derivation_path)?;
+        if let Some(address_indices) = &address_indices {
+            let change_indices = change_indices.as_ref().expect("When address-index is defined, change-index must be defined as well");
+            for change_index in change_indices {
+                for address_index in address_indices {
+                    let derivation_path = Bip44DerivationPath {
+                        coin_type,
+                        account: account_index,
+                        change: Some(*change_index),
+                        address_index: Some(*address_index),
+                    };
+                    print_key(coin_type, &master_key, &derivation_path)?;
+                }
+            }
+        } else {
+            let derivation_path = Bip44DerivationPath {
+                coin_type,
+                account: account_index,
+                change: None,
+                address_index: None,
+            };
+            print_key(coin_type, &master_key, &derivation_path)?;
+        }
     }
     
 

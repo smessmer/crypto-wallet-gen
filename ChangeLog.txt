@@ -1,7 +1,7 @@
 2.4.0
 ------
 - Update dependencies
-- Allow multiple account indices in one call
+- Allow multiple account,change and address indices in one call
 
 2.3.0
 ------
