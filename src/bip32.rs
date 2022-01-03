@@ -37,10 +37,10 @@ pub struct Bip44DerivationPath {
     pub address_index: Option<u32>,
 }
 
-impl TryFrom<Bip44DerivationPath> for bitcoin::util::bip32::DerivationPath {
+impl TryFrom<&Bip44DerivationPath> for bitcoin::util::bip32::DerivationPath {
     type Error = anyhow::Error;
 
-    fn try_from(path: Bip44DerivationPath) -> Result<bitcoin::util::bip32::DerivationPath> {
+    fn try_from(path: &Bip44DerivationPath) -> Result<bitcoin::util::bip32::DerivationPath> {
         use bitcoin::util::bip32::ChildNumber;
         let mut path_vec = vec![
             ChildNumber::from_hardened_idx(44).expect("44 is a valid index"),
@@ -97,7 +97,7 @@ impl HDPrivKey {
         })
     }
 
-    pub fn derive(&self, path: Bip44DerivationPath) -> Result<HDPrivKey> {
+    pub fn derive(&self, path: &Bip44DerivationPath) -> Result<HDPrivKey> {
         let secp256k1 = Secp256k1::new();
         let path: bitcoin::util::bip32::DerivationPath = path.try_into()?;
         Ok(HDPrivKey {
@@ -124,7 +124,7 @@ mod tests {
         let master_seed = hex::decode("04c3fca05109eb0d188971e66ba949a4a4547b6c0eceddcb3e796e6ddb7d489826901932dbab5d6aa71421de1d119b4d472a92702e2642b2d9259d4766d84284").unwrap();
         let child_key = HDPrivKey::new(Seed::from_bytes(master_seed))
             .unwrap()
-            .derive(Bip44DerivationPath {
+            .derive(&Bip44DerivationPath {
                 coin_type: CoinType::BTC,
                 account: 0,
                 change: Some(0),
@@ -143,7 +143,7 @@ mod tests {
         let master_seed = hex::decode("04c3fca05109eb0d188971e66ba949a4a4547b6c0eceddcb3e796e6ddb7d489826901932dbab5d6aa71421de1d119b4d472a92702e2642b2d9259d4766d84284").unwrap();
         let child_key = HDPrivKey::new(Seed::from_bytes(master_seed))
             .unwrap()
-            .derive(Bip44DerivationPath {
+            .derive(&Bip44DerivationPath {
                 coin_type: CoinType::BTC,
                 account: 1,
                 change: Some(0),

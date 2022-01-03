@@ -84,7 +84,7 @@ fn main() -> Result<()> {
             Arg::with_name("account-index")
                 .short("a")
                 .long("account-index")
-                .default_value("0")
+                .multiple(true)
                 .value_name("INDEX")
                 .help("The account index used for BIP44 key derivation"),
         )
@@ -124,10 +124,10 @@ fn main() -> Result<()> {
                 .unwrap_or_else(Bip39Mnemonic::generate)?,
         )
     };
-    let account_index: u32 = args
-        .value_of("account-index")
-        .expect("Can't fail because we specify a default value")
-        .parse()
+    let account_indices: Vec<u32> = args
+        .values_of("account-index")
+        .map(|v| v.map(|v| v.parse::<u32>()).collect::<Result<Vec<u32>, _>>())
+        .unwrap_or_else(|| Ok(vec![0, 1, 2]))
         .context("Couldn't parse account-index argument")?;
     let change_index: Option<u32> = args.value_of("change-index").map_or(Ok(None), |arg| {
         arg.parse()
@@ -160,18 +160,25 @@ fn main() -> Result<()> {
     if scrypt {
         println!("done");
     }
-    // Don't derive change and address_index, this is up to the wallet software.
-    // Doing it this way means we can directly import our private key into electrum
-    // and it will match the BIP44 standard.
-    let derivation_path = Bip44DerivationPath {
-        coin_type,
-        account: account_index,
-        change: change_index,
-        address_index,
-    };
+    println!("Mnemonic: {}\nPassword: [omitted from output]", mnemonic.phrase());
+
+    for account_index in account_indices {
+        let derivation_path = Bip44DerivationPath {
+            coin_type,
+            account: account_index,
+            change: change_index,
+            address_index,
+        };
+        print_key(coin_type, &master_key, &derivation_path)?;
+    }
+    
+
+    Ok(())
+}
+
+fn print_key(coin_type: CoinType, master_key: &HDPrivKey, derivation_path: &Bip44DerivationPath) -> Result<()> {
     println!(
-        "Mnemonic: {}\nPassword: [omitted from output]\nBIP44 Derivation Path: {}",
-        mnemonic.phrase(),
+        "--------------------------------------------------------------------------------------\nBIP44 Derivation Path: {}",
         derivation_path,
     );
     let derived = derive_key(master_key, derivation_path)?;
@@ -202,11 +209,10 @@ fn main() -> Result<()> {
             );
         }
     }
-
     Ok(())
 }
 
-fn derive_key(master_key: HDPrivKey, path: Bip44DerivationPath) -> Result<HDPrivKey> {
+fn derive_key(master_key: &HDPrivKey, path: &Bip44DerivationPath) -> Result<HDPrivKey> {
     master_key.derive(path)
 }
 
@@ -226,7 +232,7 @@ mod tests {
             .unwrap();
         assert_eq!(
             "xprv9zEiTz4LvP1k9brLSck5yX41EzVi3xbC2ZkPhWdyTqvJu3ovQCD6R8Z8RUoTwKkwpdqMne95zSrk9duV2SYhmmRkxvZAMsdqNHThKP8STbi",
-            derive_key(master_seed, Bip44DerivationPath {
+            derive_key(&master_seed, &Bip44DerivationPath {
                 coin_type: CoinType::BTC, account: 0, change: None, address_index: None}).unwrap().to_base58(),
         );
         // and loaded that key into electrum, checking that electrum generates the BIP44 addresses
