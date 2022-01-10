@@ -196,6 +196,16 @@ impl<ConcreteWallet: Wallet> Searcher<ConcreteWallet> {
         &self,
         derivation_path: Option<Bip44DerivationPath>,
     ) -> Result<Option<(Option<Bip44DerivationPath>, ConcreteWallet)>> {
+        // TODO logging
+        // let derivation_path_str = derivation_path
+        //         .as_ref()
+        //         .map(|t| t.to_string())
+        //         .unwrap_or_else(|| String::from("m"));
+        // log::debug!(
+        //     "Checking {}",
+        //     derivation_path_str,
+        //     has_transactions,
+        // );
         let derived = if let Some(derivation_path) = &derivation_path {
             self.master_key
                 .derive(&derivation_path)
@@ -210,6 +220,12 @@ impl<ConcreteWallet: Wallet> Searcher<ConcreteWallet> {
             .has_transactions(&wallet)
             .await
             .context("Error checking whether wallet has transactions")?;
+        // TODO logging
+        // log::info!(
+        //     "Checked {}: {}",
+        //     derivation_path_str,
+        //     if has_transactions {"has transactions"} else {"has no transactions"},
+        // );
         if has_transactions {
             Ok(Some((derivation_path, wallet)))
         } else {
