@@ -14,8 +14,8 @@ fn xmr_example_without_password() {
     .unwrap();
     let derived = seed
         .derive(&Bip44DerivationPath {
-            coin_type: CoinType::XMR,
-            account: 0,
+            coin_type: Some(CoinType::XMR),
+            account: Some(0),
             change: None,
             address_index: None,
         })
@@ -49,8 +49,8 @@ fn btc_example_without_password() {
         .unwrap();
     let derived = seed
         .derive(&Bip44DerivationPath {
-            coin_type: CoinType::BTC,
-            account: 0,
+            coin_type: Some(CoinType::BTC),
+            account: Some(0),
             change: Some(0),
             address_index: Some(0),
         })
@@ -71,8 +71,8 @@ fn btc_example_subaddress_without_password() {
         .unwrap();
     let derived = seed
         .derive(&Bip44DerivationPath {
-            coin_type: CoinType::BTC,
-            account: 3,
+            coin_type: Some(CoinType::BTC),
+            account: Some(3),
             change: Some(1),
             address_index: Some(15),
         })
@@ -93,8 +93,8 @@ fn btc_example_subaddress_with_password() {
         .unwrap();
     let derived = seed
         .derive(&Bip44DerivationPath {
-            coin_type: CoinType::BTC,
-            account: 3,
+            coin_type: Some(CoinType::BTC),
+            account: Some(3),
             change: Some(1),
             address_index: Some(15),
         })
@@ -117,8 +117,8 @@ fn eth_example_without_password() {
     .unwrap();
     let derived = seed
         .derive(&Bip44DerivationPath {
-            coin_type: CoinType::ETH,
-            account: 0,
+            coin_type: Some(CoinType::ETH),
+            account: Some(0),
             change: Some(0),
             address_index: Some(0),
         })
@@ -141,8 +141,8 @@ fn eth_example_with_password() {
     .unwrap();
     let derived = seed
         .derive(&Bip44DerivationPath {
-            coin_type: CoinType::ETH,
-            account: 0,
+            coin_type: Some(CoinType::ETH),
+            account: Some(0),
             change: Some(0),
             address_index: Some(2),
         })
@@ -165,8 +165,8 @@ fn eth_example_with_longer_mnemonic() {
     .unwrap();
     let derived = seed
         .derive(&Bip44DerivationPath {
-            coin_type: CoinType::ETH,
-            account: 0,
+            coin_type: Some(CoinType::ETH),
+            account: Some(0),
             change: Some(0),
             address_index: Some(0),
         })

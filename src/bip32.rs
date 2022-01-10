@@ -31,8 +31,8 @@ impl CoinType {
 
 #[derive(Debug)]
 pub struct Bip44DerivationPath {
-    pub coin_type: CoinType,
-    pub account: u32,
+    pub coin_type: Option<CoinType>,
+    pub account: Option<u32>,
     pub change: Option<u32>,
     pub address_index: Option<u32>,
 }
@@ -42,11 +42,25 @@ impl TryFrom<&Bip44DerivationPath> for bitcoin::util::bip32::DerivationPath {
 
     fn try_from(path: &Bip44DerivationPath) -> Result<bitcoin::util::bip32::DerivationPath> {
         use bitcoin::util::bip32::ChildNumber;
-        let mut path_vec = vec![
-            ChildNumber::from_hardened_idx(44).expect("44 is a valid index"),
-            ChildNumber::from_hardened_idx(path.coin_type.bip44_value())?,
-            ChildNumber::from_hardened_idx(path.account)?,
-        ];
+        // TODO This should probably be an ArrayVec
+        let mut path_vec = Vec::with_capacity(5);
+        path_vec.push(ChildNumber::from_hardened_idx(44).expect("44 is a valid index"));
+        if let Some(coin_type) = path.coin_type {
+            path_vec.push(ChildNumber::from_hardened_idx(coin_type.bip44_value())?);
+        } else {
+            assert!(
+                path.account.is_none(),
+                "account can only be set when coin_type is set"
+            );
+        }
+        if let Some(account) = path.account {
+            path_vec.push(ChildNumber::from_hardened_idx(account)?);
+        } else {
+            assert!(
+                path.change.is_none(),
+                "change can only be set when account is set"
+            );
+        }
         if let Some(change) = path.change {
             path_vec.push(ChildNumber::from_normal_idx(change)?);
         } else {
@@ -64,12 +78,23 @@ impl TryFrom<&Bip44DerivationPath> for bitcoin::util::bip32::DerivationPath {
 
 impl std::fmt::Display for Bip44DerivationPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "m/44'/{}'/{}'",
-            self.coin_type.bip44_value(),
-            self.account
-        )?;
+        write!(f, "m/44'")?;
+        if let Some(coin_type) = self.coin_type {
+            write!(f, "/{}'", coin_type.bip44_value())?;
+        } else {
+            assert!(
+                self.account.is_none(),
+                "account can only be set when coin_type is set"
+            );
+        }
+        if let Some(account) = self.account {
+            write!(f, "/{}'", account)?;
+        } else {
+            assert!(
+                self.change.is_none(),
+                "change can only be set when account is set"
+            );
+        }
         if let Some(change) = self.change {
             write!(f, "/{}", change)?;
         } else {
@@ -119,6 +144,8 @@ impl HDPrivKey {
 mod tests {
     use super::*;
 
+    // TODO Add test cases that have both complete and incomplete derivation paths (i.e. set some fields to None)
+
     #[test]
     fn test_account0() {
         // Generated with https://iancoleman.io/bip39/
@@ -126,8 +153,8 @@ mod tests {
         let child_key = HDPrivKey::new(Seed::from_bytes(master_seed))
             .unwrap()
             .derive(&Bip44DerivationPath {
-                coin_type: CoinType::BTC,
-                account: 0,
+                coin_type: Some(CoinType::BTC),
+                account: Some(0),
                 change: Some(0),
                 address_index: None,
             })
@@ -145,8 +172,8 @@ mod tests {
         let child_key = HDPrivKey::new(Seed::from_bytes(master_seed))
             .unwrap()
             .derive(&Bip44DerivationPath {
-                coin_type: CoinType::BTC,
-                account: 1,
+                coin_type: Some(CoinType::BTC),
+                account: Some(1),
                 change: Some(0),
                 address_index: None,
             })

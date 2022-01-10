@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use clap::{value_t, ArgMatches};
+use futures::future::{try_join, try_join4};
 use std::iter::Peekable;
 
 use crate::wallets::{
@@ -7,8 +8,6 @@ use crate::wallets::{
     Wallet,
 };
 use crate::{Bip44DerivationPath, CoinType, HDPrivKey};
-
-// TODO Also search intermediate not-fully-derived addresses
 
 struct StopConditions {
     stop_after_n_empty_accounts: u32,
@@ -59,7 +58,7 @@ impl<ConcreteWallet: Wallet> Searcher<ConcreteWallet> {
         for (derivation_path, wallet) in found_addresses {
             println!(
                 "--------------------------------------------------------------------------------------\nBIP44 Derivation Path: {}\n",
-                derivation_path,
+                derivation_path.map(|p| p.to_string()).unwrap_or_else(|| String::from("none")),
             );
             wallet.print_key()?;
         }
@@ -68,80 +67,154 @@ impl<ConcreteWallet: Wallet> Searcher<ConcreteWallet> {
 
     async fn _search_accounts(
         &self,
-    ) -> Result<impl Iterator<Item = (Bip44DerivationPath, ConcreteWallet)> + '_> {
-        Ok(crate::utils::search::search(
-            self.stop_conditions.stop_after_n_empty_accounts,
-            move |account_index| {
-                Box::pin(async move {
-                    Ok(none_if_empty(
-                        self._search_changes(account_index).await?.peekable(),
-                    ))
-                })
-            },
+    ) -> Result<impl Iterator<Item = (Option<Bip44DerivationPath>, ConcreteWallet)> + '_> {
+        let wallet_from_root_path = async move {
+            self._wallet_if_has_transactions(None)
+                .await
+                .map(|a| a.into_iter())
+        };
+        let wallet_from_intermediate_path_1 = async move {
+            self._wallet_if_has_transactions(Some(Bip44DerivationPath {
+                coin_type: None,
+                account: None,
+                change: None,
+                address_index: None,
+            }))
+            .await
+            .map(|a| a.into_iter())
+        };
+        let wallet_from_intermediate_path_2 = async move {
+            self._wallet_if_has_transactions(Some(Bip44DerivationPath {
+                coin_type: Some(ConcreteWallet::COIN_TYPE),
+                account: None,
+                change: None,
+                address_index: None,
+            }))
+            .await
+            .map(|a| a.into_iter())
+        };
+        let wallets_from_derived_paths = async move {
+            Ok(crate::utils::search::search(
+                self.stop_conditions.stop_after_n_empty_accounts,
+                move |account_index| {
+                    Box::pin(async move {
+                        Ok(none_if_empty(
+                            self._search_changes(account_index).await?.peekable(),
+                        ))
+                    })
+                },
+            )
+            .await?
+            .flatten())
+        };
+        let (
+            wallet_from_root_path,
+            wallet_from_intermediate_path_1,
+            wallet_from_intermediate_path_2,
+            wallets_from_derived_paths,
+        ) = try_join4(
+            wallet_from_root_path,
+            wallet_from_intermediate_path_1,
+            wallet_from_intermediate_path_2,
+            wallets_from_derived_paths,
         )
-        .await
-        .context("Failed to search accounts")?
-        .flatten())
+        .await?;
+        Ok(wallet_from_root_path
+            .chain(wallet_from_intermediate_path_1)
+            .chain(wallet_from_intermediate_path_2)
+            .chain(wallets_from_derived_paths))
     }
 
     async fn _search_changes(
         &self,
         account_index: u32,
-    ) -> Result<impl Iterator<Item = (Bip44DerivationPath, ConcreteWallet)> + '_> {
-        Ok(crate::utils::search::search(
-            self.stop_conditions.stop_after_n_empty_change_indices,
-            move |change_index| {
-                Box::pin(async move {
-                    Ok(none_if_empty(
-                        self._search_addresses(account_index, change_index)
-                            .await?
-                            .peekable(),
-                    ))
-                })
-            },
-        )
-        .await
-        .context("Failed to search changes")?
-        .flatten())
+    ) -> Result<impl Iterator<Item = (Option<Bip44DerivationPath>, ConcreteWallet)> + '_> {
+        let wallet_from_intermediate_path = async move {
+            self._wallet_if_has_transactions(Some(Bip44DerivationPath {
+                coin_type: Some(ConcreteWallet::COIN_TYPE),
+                account: Some(account_index),
+                change: None,
+                address_index: None,
+            }))
+            .await
+            .map(|a| a.into_iter())
+        };
+        let wallets_from_derived_paths = async move {
+            Ok(crate::utils::search::search(
+                self.stop_conditions.stop_after_n_empty_change_indices,
+                move |change_index| {
+                    Box::pin(async move {
+                        Ok(none_if_empty(
+                            self._search_addresses(account_index, change_index)
+                                .await?
+                                .peekable(),
+                        ))
+                    })
+                },
+            )
+            .await?
+            .flatten())
+        };
+        let (wallet_from_intermediate_path, wallets_from_derived_paths) =
+            try_join(wallet_from_intermediate_path, wallets_from_derived_paths).await?;
+        Ok(wallet_from_intermediate_path.chain(wallets_from_derived_paths))
     }
 
     async fn _search_addresses(
         &self,
         account_index: u32,
         change_index: u32,
-    ) -> Result<impl Iterator<Item = (Bip44DerivationPath, ConcreteWallet)> + '_> {
-        crate::utils::search::search(
+    ) -> Result<impl Iterator<Item = (Option<Bip44DerivationPath>, ConcreteWallet)> + '_> {
+        let wallet_from_intermediate_path = async move {
+            Ok(self
+                ._wallet_if_has_transactions(Some(Bip44DerivationPath {
+                    coin_type: Some(ConcreteWallet::COIN_TYPE),
+                    account: Some(account_index),
+                    change: Some(change_index),
+                    address_index: None,
+                }))
+                .await?
+                .into_iter())
+        };
+        let wallets_from_derived_paths = crate::utils::search::search(
             self.stop_conditions.stop_after_n_empty_addresses,
             move |address_index| {
-                let derivation_path = Bip44DerivationPath {
-                    coin_type: ConcreteWallet::COIN_TYPE,
-                    account: account_index,
+                Box::pin(self._wallet_if_has_transactions(Some(Bip44DerivationPath {
+                    coin_type: Some(ConcreteWallet::COIN_TYPE),
+                    account: Some(account_index),
                     change: Some(change_index),
                     address_index: Some(address_index),
-                };
-                let derived = self
-                    .master_key
-                    .derive(&derivation_path)
-                    .with_context(|| anyhow!("Error deriving master key to {}", derivation_path));
-                Box::pin(async move {
-                    let derived = derived?;
-                    let wallet = ConcreteWallet::from_hd_key(&derived)
-                        .context("Error creating wallet from hd key")?;
-                    let has_transactions = self
-                        .transaction_checker
-                        .has_transactions(&wallet)
-                        .await
-                        .context("Error checking whether wallet has transactions")?;
-                    if has_transactions {
-                        Ok(Some((derivation_path, wallet)))
-                    } else {
-                        Ok(None)
-                    }
-                })
+                })))
             },
-        )
-        .await
-        .context("Failed to search accounts")
+        );
+        let (wallet_from_intermediate_path, wallets_from_derived_paths) =
+            try_join(wallet_from_intermediate_path, wallets_from_derived_paths).await?;
+        Ok(wallet_from_intermediate_path.chain(wallets_from_derived_paths))
+    }
+
+    async fn _wallet_if_has_transactions(
+        &self,
+        derivation_path: Option<Bip44DerivationPath>,
+    ) -> Result<Option<(Option<Bip44DerivationPath>, ConcreteWallet)>> {
+        let derived = if let Some(derivation_path) = &derivation_path {
+            self.master_key
+                .derive(&derivation_path)
+                .with_context(|| anyhow!("Error deriving master key to {}", derivation_path))?
+        } else {
+            self.master_key.clone()
+        };
+        let wallet =
+            ConcreteWallet::from_hd_key(&derived).context("Error creating wallet from hd key")?;
+        let has_transactions = self
+            .transaction_checker
+            .has_transactions(&wallet)
+            .await
+            .context("Error checking whether wallet has transactions")?;
+        if has_transactions {
+            Ok(Some((derivation_path, wallet)))
+        } else {
+            Ok(None)
+        }
     }
 }
 

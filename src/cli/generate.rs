@@ -44,8 +44,8 @@ pub fn run(coin_type: CoinType, master_key: &HDPrivKey, generate_args: &ArgMatch
             for change_index in change_indices {
                 for address_index in address_indices {
                     let derivation_path = Bip44DerivationPath {
-                        coin_type,
-                        account: account_index,
+                        coin_type: Some(coin_type),
+                        account: Some(account_index),
                         change: Some(*change_index),
                         address_index: Some(*address_index),
                     };
@@ -54,8 +54,8 @@ pub fn run(coin_type: CoinType, master_key: &HDPrivKey, generate_args: &ArgMatch
             }
         } else {
             let derivation_path = Bip44DerivationPath {
-                coin_type,
-                account: account_index,
+                coin_type: Some(coin_type),
+                account: Some(account_index),
                 change: None,
                 address_index: None,
             };

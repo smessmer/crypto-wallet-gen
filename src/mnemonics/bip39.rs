@@ -249,7 +249,7 @@ mod tests {
         assert_eq!(
             "xprv9zEiTz4LvP1k9brLSck5yX41EzVi3xbC2ZkPhWdyTqvJu3ovQCD6R8Z8RUoTwKkwpdqMne95zSrk9duV2SYhmmRkxvZAMsdqNHThKP8STbi",
             master_seed.derive(&Bip44DerivationPath {
-                coin_type: CoinType::BTC, account: 0, change: None, address_index: None}).unwrap().to_base58(),
+                coin_type: Some(CoinType::BTC), account: Some(0), change: None, address_index: None}).unwrap().to_base58(),
         );
         // and loaded that key into electrum, checking that electrum generates the BIP44 addresses
         // listed on https://iancoleman.io/bip39/
