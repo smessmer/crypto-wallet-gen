@@ -212,7 +212,8 @@ impl<ConcreteWallet: Wallet> Searcher<ConcreteWallet> {
         // );
         let derived = if let Some(derivation_path) = &derivation_path {
             self.master_key
-                .derive(&derivation_path)
+                .derive_async(&derivation_path)
+                .await
                 .with_context(|| anyhow!("Error deriving master key to {}", derivation_path))?
         } else {
             self.master_key.clone()

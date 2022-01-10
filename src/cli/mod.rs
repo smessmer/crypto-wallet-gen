@@ -177,7 +177,7 @@ pub async fn main() -> Result<()> {
     );
 
     if let Some(generate_args) = args.subcommand_matches("generate") {
-        generate::run(coin_type, &master_key, generate_args)?;
+        generate::run(coin_type, &master_key, generate_args).await?;
     } else if let Some(search_args) = args.subcommand_matches("search") {
         search::run(coin_type, master_key, search_args).await?;
     } else {

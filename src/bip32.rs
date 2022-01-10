@@ -131,6 +131,12 @@ impl HDPrivKey {
         })
     }
 
+    // Derive on a worker thread (it's CPU expensive!)
+    pub async fn derive_async(&self, path: &Bip44DerivationPath) -> Result<HDPrivKey> {
+        // TODO Run this on a worker thread
+        self.derive(path)
+    }
+
     pub fn key_part(&self) -> Seed {
         Seed::from_bytes(self.ext_key.private_key.to_bytes())
     }
@@ -145,6 +151,7 @@ mod tests {
     use super::*;
 
     // TODO Add test cases that have both complete and incomplete derivation paths (i.e. set some fields to None)
+    // TODO Test derive_async
 
     #[test]
     fn test_account0() {
