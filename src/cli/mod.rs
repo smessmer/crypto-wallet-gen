@@ -87,6 +87,7 @@ pub async fn main() -> Result<()> {
             .help("Use scrypt instead of PBKDF2 in the BIP39 derivation. This makes keys harder to brute force, but it deviates from the BIP39 standard.")
         )
         .subcommand(SubCommand::with_name("generate")
+            .about("Generate one or more wallet addresses")
             .arg(
                 Arg::with_name("account-index")
                     .short("a")
@@ -111,6 +112,7 @@ pub async fn main() -> Result<()> {
             )
         )
         .subcommand(SubCommand::with_name("search")
+            .about("Try different derivation paths and show all addresses that have transactions (i.e. have been used in the past)")
             .arg(
                 Arg::with_name("stop-after-n-empty-accounts")
                     .long("stop-after-n-empty-accounts")
