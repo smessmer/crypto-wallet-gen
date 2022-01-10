@@ -92,11 +92,10 @@ fn generate_keys_for_account<'a>(
                 change: Some(*change_index),
                 address_index: Some(*address_index),
             };
-            let r: Pin<Box<dyn Future<Output = Result<(Bip44DerivationPath, HDPrivKey)>>>> =
-                Box::pin(async move {
-                    let derived_key = derive_key(master_key, &derivation_path).await?;
-                    Ok((derivation_path, derived_key))
-                });
+            let r: LocalBoxFuture<_> = Box::pin(async move {
+                let derived_key = derive_key(master_key, &derivation_path).await?;
+                Ok((derivation_path, derived_key))
+            });
             r
         })
     })
@@ -113,7 +112,7 @@ fn generate_root_key_for_account(
         change: None,
         address_index: None,
     };
-    let r: LocalBoxFuture<Result<(Bip44DerivationPath, HDPrivKey)>> = Box::pin(async move {
+    let r: LocalBoxFuture<_> = Box::pin(async move {
         let derived_key = derive_key(master_key, &derivation_path).await?;
         Ok((derivation_path, derived_key))
     });
