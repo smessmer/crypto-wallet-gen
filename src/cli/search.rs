@@ -119,10 +119,14 @@ impl<ConcreteWallet: Wallet> Searcher<ConcreteWallet> {
             wallets_from_derived_paths,
         )
         .await?;
-        Ok(wallet_from_root_path
-            .chain(wallet_from_intermediate_path_1)
-            .chain(wallet_from_intermediate_path_2)
-            .chain(wallets_from_derived_paths))
+        Ok([
+            wallet_from_root_path,
+            wallet_from_intermediate_path_1,
+            wallet_from_intermediate_path_2,
+        ]
+        .into_iter()
+        .flatten()
+        .chain(wallets_from_derived_paths))
     }
 
     async fn _search_changes(
