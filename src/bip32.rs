@@ -5,6 +5,7 @@ use clap::arg_enum;
 use secp256k1::Secp256k1;
 use std::convert::TryFrom;
 use std::convert::TryInto;
+use std::future::Future;
 
 use crate::seed::Seed;
 
@@ -29,7 +30,7 @@ impl CoinType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Bip44DerivationPath {
     pub coin_type: Option<CoinType>,
     pub account: Option<u32>,
@@ -132,9 +133,13 @@ impl HDPrivKey {
     }
 
     // Derive on a worker thread (it's CPU expensive!)
-    pub async fn derive_async(&self, path: &Bip44DerivationPath) -> Result<HDPrivKey> {
-        // TODO Run this on a worker thread
-        self.derive(path)
+    pub fn derive_async<'a>(
+        &self,
+        path: &Bip44DerivationPath,
+    ) -> impl Future<Output = Result<HDPrivKey>> {
+        let s = self.clone();
+        let p: Bip44DerivationPath = path.clone();
+        async move { tokio::task::spawn_blocking(move || s.derive(&p)).await? }
     }
 
     pub fn key_part(&self) -> Seed {
