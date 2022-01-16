@@ -6,10 +6,10 @@ use wagyu_monero::format::MoneroFormat;
 use wagyu_monero::network::mainnet::Mainnet;
 use wagyu_monero::private_key::MoneroPrivateKey;
 
-use super::TransactionChecker;
-use super::Wallet;
+use super::transaction_checker::MoneroTransactionChecker;
 use crate::bip32::{CoinType, HDPrivKey};
 use crate::seed::Seed;
+use crate::wallets::Wallet;
 
 pub struct MoneroWallet {
     private_key: MoneroPrivateKey<Mainnet>,
@@ -74,15 +74,6 @@ impl Wallet for MoneroWallet {
 
     async fn new_transaction_checker() -> Result<MoneroTransactionChecker> {
         Ok(MoneroTransactionChecker {})
-    }
-}
-
-pub struct MoneroTransactionChecker {}
-
-#[async_trait]
-impl TransactionChecker<MoneroWallet> for MoneroTransactionChecker {
-    async fn has_transactions(&self, wallet: &MoneroWallet) -> Result<bool> {
-        todo!()
     }
 }
 

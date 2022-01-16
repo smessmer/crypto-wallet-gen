@@ -4,6 +4,7 @@ categories = ["command-line-utilities", "cryptography::cryptocurrencies"]
 description = "This is a utility to generate seed phrases and to generate crypto currency wallets from a seed phrase. This way, you only need to remember one seed phrase and can generate wallets from it for multiple currencies."
 documentation = "https://github.com/smessmer/crypto-wallet-gen"
 edition = "2021"
+rust-version = "1.58"
 homepage = "https://github.com/smessmer/crypto-wallet-gen"
 keywords = ["cryptocurrency", "wallet", "bitcoin", "monero", "ethereum"]
 license = "GPL-3.0-or-later"
@@ -28,6 +29,7 @@ clap = "^2.34.0"
 failure = "^0.1.8"
 futures = "^0.3.19"
 hex = "^0.4.3"
+jsonrpc = "^0.12.0"
 rand = {version = "^0.8.4", features = ["getrandom"]}
 rand_chacha = "^0.3.1"
 rand_core_5 = {version = "^0.5.1", package = "rand_core"}
